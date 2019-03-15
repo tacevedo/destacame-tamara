@@ -1,5 +1,6 @@
 <template>
-  <div> Hoe
+  <div>
+    <h1> Asignar asiento a un usuario </h1>
   </div>
 </template>
 
