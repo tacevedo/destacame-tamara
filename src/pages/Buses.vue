@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="py-3"><h2>Buses</h2> </div>
+    <div class="py-3"><h2 class="primary--text">Buses</h2> </div>
     
     <v-dialog v-model="dialog" persistent max-width="900px">
       <v-card>

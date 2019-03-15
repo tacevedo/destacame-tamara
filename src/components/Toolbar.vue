@@ -1,5 +1,5 @@
 <template>
-  <v-toolbar>
+  <v-toolbar color="primary" class="white--text">
     <!-- <v-toolbar-side-icon></v-toolbar-side-icon> -->
     <v-toolbar-title :to="asignarPath">Gestiona viajes</v-toolbar-title>
     <v-spacer></v-spacer>
