@@ -17,13 +17,13 @@
 <script>
   export default {
     name: 'Toolbar',
-    // data: () => ({
-    //   asignarPath: '/',
+    data: () => ({
+      asignarPath: '/',
     //   busesPath: '/buses',
     //   trayectosPath: '/trayectos',
     //   choferesPath: '/choferes',
     //   pasajerosPath: '/pasajeros',
     //   horariosPath: '/horarios'
-    // })
+    })
   }
 </script>
