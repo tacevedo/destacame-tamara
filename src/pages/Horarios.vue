@@ -1,25 +1,73 @@
 <template>
   <div class="pa-3">
-    <h2 class="py-3 secondary--text">Buses</h2>
+    <div class="py-3"><h2 class="secondary--text">Horarios</h2> </div>
+    
     <v-dialog v-model="dialog" persistent max-width="900px">
       <v-card>
         <v-card-title primary-title>
-            <h3 class="headline secondary--text">Bus</h3>
+            <h3 class="headline secondary--text">Horario</h3>
         </v-card-title>
         <v-card-text>
           <v-container grid-list-md>
             <v-layout wrap>
               <v-flex xs12 md6>
-                <v-text-field label="Patente" outline v-model="editedItem.patente"></v-text-field>
+                <v-menu
+                  v-model="datepicker"
+                  :close-on-content-click="false"
+                  full-width
+                  max-width="290"
+                >
+                  <v-text-field
+                    slot="activator"
+                    :value="computedDateFormattedMomentjs(editedItem.fecha)"
+                    clearable
+                    label="Fecha"
+                    outline
+                    readonly
+                  ></v-text-field>
+                  <v-date-picker
+                    v-model="editedItem.fecha"
+                    @change="datepicker = false"
+                    locale="es-419"
+                  ></v-date-picker>
+                </v-menu>
               </v-flex>
               <v-flex xs12 md6>
-                <v-text-field label="Marca" outline v-model="editedItem.marca"></v-text-field>
+                <v-menu
+                  ref="time1"
+                  :close-on-content-click="false"
+                  v-model="timepicker"
+                  :nudge-right="40"
+                  :return-value.sync="editedItem.hora"
+                  lazy
+                  transition="scale-transition"
+                  offset-y
+                  full-width
+                  max-width="290px"
+                  min-width="290px"
+                >
+                  <v-text-field
+                    slot="activator"
+                    v-model="editedItem.hora"
+                    label="Hora Salida"
+                    outline
+                    readonly
+                  ></v-text-field>
+                  <v-time-picker
+                    v-if="timepicker"
+                    v-model="editedItem.hora"
+                    format="24hr"
+                    full-width
+                    @change="$refs.time1.save(editedItem.hora)"
+                  ></v-time-picker>
+                </v-menu>
               </v-flex>
+
             </v-layout>
             
             <v-layout wrap>
               <v-flex xs12 md6>
-                <v-text-field label="Chofer" outline v-model="editedItem.chofer_id"></v-text-field>
+                Mostrar lista de trayectos y bus qe lo tienen
               </v-flex>
             </v-layout>
           </v-container>
@@ -34,8 +82,8 @@
     <!-- dialogo confirmar eliminar -->
     <v-dialog v-model="confirmaAnular" persistent max-width="450">
       <v-card>
-        <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el Bus?</v-card-title>
-        <v-card-text>Una vez realizada esta acción no podrá recuperar el bus.</v-card-text>
+        <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el Horario?</v-card-title>
+        <v-card-text>Una vez realizada esta acción no podrá recuperar el horario.</v-card-text>
         <v-card-actions class="pb-3 px-3">
           <v-spacer></v-spacer>          
           <v-btn color="primary" outline @click.native="confirmaAnular = false">Volver</v-btn>
@@ -55,21 +103,20 @@
         ></v-text-field>
         <v-spacer></v-spacer>
         <div class="text-xs-right">
-          <v-btn color="primary" @click="dialog = true"> <v-icon light>add</v-icon> Agregar Bus</v-btn>
+          <v-btn color="primary" @click="dialog = true"> <v-icon light>add</v-icon> Agregar Horario</v-btn>
         </div>
       </v-toolbar>
 
       <v-data-table
           :headers="headers"
-          :items="buses"
+          :items="horarios"
           :search="search"
           hide-actions
-          no-data-text="No hay buses registrados"
+          no-data-text="No hay horarios registrados"
         >
         <template slot="items" slot-scope="props">
-          <td>{{ props.item.patente }}</td>
-          <td>{{ props.item.marca }}</td>
-          <td>{{ props.item.chofer_id }}</td>
+          <td>{{ props.item.fecha }}</td>
+          <td>{{ props.item.hora }}</td>
           <td class="justify-center">
             <v-tooltip top>
               <v-icon
@@ -105,41 +152,34 @@
 <script>
   // import API from '@pi/app'
   // import Tabla from '../components/Tabla'
-
+  import moment from 'moment'
   export default {
     data () {
       return {
         confirmaAnular: false,
         dialog: false,
         search: '',
+        datepicker: false,
+        timepicker: false,
         editedItem: {
-          patente: '',
-          marca: '',
-          chofer_id: ''
+          fecha: '',
+          hora: ''
         },
         elimina: '',
         headers: [
-          {text: 'Patente', value: 'patente'},
-          {text: 'Marca', value: 'marca'},
-          {text: 'Chofer', value: 'chofer_id'},
+          {text: 'Fecha', value: 'fecha'},
+          {text: 'Hora', value: 'hora'},
           {text: '', value: 'edit', sortable: false},
           {text: '', value: 'delete', sortable: false}
         ],
-        buses: [
+        horarios: [
           {
-            patente: '113939483-1',
-            marca: 'Bus 1',
-            chofer_id: 'EST'
+            fecha: '22/2/1987',
+            hora: '22:00:00'
           },
           {
-            patente: '113939483-2',
-            marca: 'Bus 2',
-            chofer_id: 'EST'
-          },
-          {
-            patente: '113939483-3',
-            marca: 'Bus 3',
-            chofer_id: 'EST'
+            fecha: '2/2/2178',
+            hora: '17:00:00'
           }
         ]
       }
@@ -148,6 +188,9 @@
     //   this.getbuses()
     // },
     methods: {
+      computedDateFormattedMomentjs (data) {
+        return data ? moment(data).lang('es').format('dddd DD/MM/YYYY') : ''
+      },
       editItem (item) {
         this.editedItem = item
         this.dialog = true

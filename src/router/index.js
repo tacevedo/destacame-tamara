@@ -6,6 +6,7 @@ import Trayectos from '../pages/Trayectos'
 import Buses from '../pages/Buses'
 import Choferes from '../pages/Choferes'
 import Pasajeros from '../pages/Pasajeros'
+import Horarios from '../pages/Horarios'
 
 Vue.use(Router)
 
@@ -36,6 +37,11 @@ const router = new Router({
       path: '/pasajeros',
       name: 'Pasajeros',
       component: Pasajeros,
+    },
+    {
+      path: '/horarios',
+      name: 'Horarios',
+      component: Horarios,
     }
   ]
 })

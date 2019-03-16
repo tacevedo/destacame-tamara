@@ -1,26 +1,33 @@
 <template>
-  <div id="app">
+  <v-app id="app">
     <toolbar />
-    <router-view />
-  </div>
+    <sidebar />
+    <router-view class="contenido"/>
+  </v-app>
 </template>
 
 <script>
   import Toolbar from './components/Toolbar'
+  import Sidebar from './components/Sidebar'
+  
   export default {
     name: 'app',
     components: {
-      Toolbar
+      Toolbar,
+      Sidebar
     }
   }
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+  #app {
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
+  }
+  .contenido {
+    margin-left: 260px;
+  }
 </style>
