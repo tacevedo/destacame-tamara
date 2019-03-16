@@ -46,7 +46,7 @@
         <v-card-actions class="pb-3 px-3">
           <v-spacer></v-spacer>
           <v-btn color="primary" outline @click.native="confirmaAnular = false">Volver</v-btn>
-          <v-btn color="primary" @click="deleteItem(eliminaid)">Eliminar</v-btn>
+          <v-btn color="primary" @click="deleteItem()">Eliminar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -174,7 +174,7 @@
             try {
               let putChofer = await API.update('chofer', id, guardar)
               if (putChofer.status >= 200 && putChofer.status < 300) {
-                this.getCars()
+                this.getChoferes()
                 this.dialog = false
                 this.$swal({
                   type: 'success',
@@ -189,7 +189,7 @@
                 this.editedItem = Object.assign({}, '')
               }
             } catch (e) {
-              console.log('catch err', e.response)
+              console.log('catch err', e)
               this.editedItem = Object.assign({}, '')
               this.dialog = false
               this.$swal({
@@ -252,7 +252,7 @@
           let eliminando = await API.delete('chofer', this.elimina)
           if (eliminando.status >= 200 && eliminando.status < 300) {
             console.log('ya hizo DELETE chofer', eliminando)
-            this.getCars()
+            this.getChoferes()
             this.confirmaAnular = false
             this.$swal({
               type: 'success',
@@ -266,7 +266,7 @@
             })
           }
         } catch (e) {
-          console.log('catch err', e.response)
+          console.log('catch err', e)
           this.editedItem = Object.assign({}, '')
           this.confirmaAnular = false
           this.$swal({

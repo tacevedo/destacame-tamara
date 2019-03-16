@@ -25,6 +25,7 @@ export default {
   },
   delete (urlModel, id) {
     const request = `${base}${urlModel}/${id}`
-    return axios.delete(request, {...auth})
+    console.log('delete req', request)
+    return axios.delete(request, {data:{...auth}})
   }
 }

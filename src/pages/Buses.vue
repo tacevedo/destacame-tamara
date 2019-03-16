@@ -24,7 +24,18 @@
               
               <v-layout wrap>
                 <v-flex xs12 md6>
-                  <v-text-field label="Chofer" type="number" outline v-model="editedItem.id_chofer"></v-text-field>
+                  <!-- <v-text-field label="Chofer" type="number" outline v-model="editedItem.id_chofer"></v-text-field> -->
+                  <v-autocomplete
+                    v-model="editedItem.id_chofer"
+                    :items="choferes"
+                    outline
+                    hide-details
+                    label="Chofer"
+                    item-text="nombre"
+                    item-value="id"
+                    class="white--text"
+                  >
+                  </v-autocomplete>
                 </v-flex>
               </v-layout>
             </v-container>
@@ -131,14 +142,16 @@
           {text: '', value: 'delete', sortable: false}
         ],
         buses: [],
+        choferes: [],
         valid: true
       }
     },
     mounted () {
       this.getbuses()
+      this.getChoferes()
     },
     methods: {
-       async getbuses () {
+      async getbuses () {
         try {
           let cars = await API.selectAll('bus')
           if (cars.status >= 200 && cars.status < 300) {
@@ -152,6 +165,17 @@
           console.log('catch err', e)
         }
       },
+      async getChoferes () {
+        try {
+          let drivers = await API.selectAll('chofer')
+          if (drivers.status >= 200 && drivers.status < 300) {
+            console.log('choferes en buses', drivers)
+            this.choferes = drivers.data
+          }
+        } catch (e) {
+          console.log('catch err', e)
+        }
+      },
       async save (guardar) {
         console.log('a guardar', guardar)
         if (this.$refs.form.validate()) {
@@ -160,7 +184,7 @@
             try {
               let putbus = await API.update('bus', id, guardar)
               if (putbus.status >= 200 && putbus.status < 300) {
-                this.getCars()
+                this.getbuses()
                 this.dialog = false
                 this.$swal({
                   type: 'success',
@@ -175,7 +199,7 @@
                 this.editedItem = Object.assign({}, '')
               }
             } catch (e) {
-              console.log('catch err', e.response)
+              console.log('catch err', e)
               this.editedItem = Object.assign({}, '')
               this.dialog = false
               this.$swal({
@@ -209,7 +233,7 @@
                 })
               }
             } catch (e) {
-              console.log('catch err', e.response)
+              console.log('catch err', e)
               this.editedItem = Object.assign({}, '')
               this.dialog = false
               this.$swal({
@@ -238,7 +262,7 @@
           let eliminando = await API.delete('bus', this.elimina)
           if (eliminando.status >= 200 && eliminando.status < 300) {
             console.log('ya hizo DELETE car', eliminando)
-            this.getCars()
+            this.getbuses()
             this.confirmaAnular = false
             this.$swal({
               type: 'success',

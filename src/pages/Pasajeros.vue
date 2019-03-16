@@ -174,7 +174,7 @@
             try {
               let putPasajero = await API.update('pasajero', id, guardar)
               if (putPasajero.status >= 200 && putPasajero.status < 300) {
-                this.getCars()
+                this.getPasajeros()
                 this.dialog = false
                 this.$swal({
                   type: 'success',
@@ -209,7 +209,7 @@
               if (postPasajero.status >= 200 && postPasajero.status < 300) {
                 console.log('result post pasajero', postPasajero)
                 this.editedItem = Object.assign({}, '')
-                this.getChoferes()
+                this.getPasajeros()
                 this.dialog = false
                 this.$swal({
                   type: 'success',
@@ -252,7 +252,7 @@
           let eliminando = await API.delete('pasajero', this.elimina)
           if (eliminando.status >= 200 && eliminando.status < 300) {
             console.log('ya hizo DELETE pasajero', eliminando)
-            this.getCars()
+            this.getPasajeros()
             this.confirmaAnular = false
             this.$swal({
               type: 'success',

@@ -286,7 +286,7 @@ mounted () {
           let eliminando = await API.delete('horario', this.elimina)
           if (eliminando.status >= 200 && eliminando.status < 300) {
             console.log('ya hizo DELETE horario', eliminando)
-            this.getCars()
+            this.getHorarios()
             this.confirmaAnular = false
             this.$swal({
               type: 'success',

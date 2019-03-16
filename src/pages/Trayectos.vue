@@ -270,7 +270,7 @@
           let eliminando = await API.delete('trayecto', this.elimina)
           if (eliminando.status >= 200 && eliminando.status < 300) {
             // console.log('ya hizo DELETE Trayecto', eliminando)
-            this.getCars()
+            this.getTrayectos()
             this.confirmaAnular = false
             this.$swal({
               type: 'success',
