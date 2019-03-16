@@ -8,69 +8,75 @@
             <h3 class="headline secondary--text">Horario</h3>
         </v-card-title>
         <v-card-text>
-          <v-container grid-list-md>
-            <v-layout wrap>
-              <v-flex xs12 md6>
-                <v-menu
-                  v-model="datepicker"
-                  :close-on-content-click="false"
-                  full-width
-                  max-width="290"
-                >
-                  <v-text-field
-                    slot="activator"
-                    :value="computedDateFormattedMomentjs(editedItem.fecha)"
-                    clearable
-                    label="Fecha"
-                    outline
-                    readonly
-                  ></v-text-field>
-                  <v-date-picker
-                    v-model="editedItem.fecha"
-                    @change="datepicker = false"
-                    locale="es-419"
-                  ></v-date-picker>
-                </v-menu>
-              </v-flex>
-              <v-flex xs12 md6>
-                <v-menu
-                  ref="time1"
-                  :close-on-content-click="false"
-                  v-model="timepicker"
-                  :nudge-right="40"
-                  :return-value.sync="editedItem.hora"
-                  lazy
-                  transition="scale-transition"
-                  offset-y
-                  full-width
-                  max-width="290px"
-                  min-width="290px"
-                >
-                  <v-text-field
-                    slot="activator"
-                    v-model="editedItem.hora"
-                    label="Hora Salida"
-                    outline
-                    readonly
-                  ></v-text-field>
-                  <v-time-picker
-                    v-if="timepicker"
-                    v-model="editedItem.hora"
-                    format="24hr"
+          <v-form
+            ref="form"
+            v-model="valid"
+            lazy-validation
+          >
+            <v-container grid-list-md>
+              <v-layout wrap>
+                <v-flex xs12 md6>
+                  <v-menu
+                    v-model="datepicker"
+                    :close-on-content-click="false"
                     full-width
-                    @change="$refs.time1.save(editedItem.hora)"
-                  ></v-time-picker>
-                </v-menu>
-              </v-flex>
+                    max-width="290"
+                  >
+                    <v-text-field
+                      slot="activator"
+                      :value="computedDateFormattedMomentjs(editedItem.fecha)"
+                      clearable
+                      label="Fecha"
+                      outline
+                      readonly
+                    ></v-text-field>
+                    <v-date-picker
+                      v-model="editedItem.fecha"
+                      @change="datepicker = false"
+                      locale="es-419"
+                    ></v-date-picker>
+                  </v-menu>
+                </v-flex>
+                <v-flex xs12 md6>
+                  <v-menu
+                    ref="time1"
+                    :close-on-content-click="false"
+                    v-model="timepicker"
+                    :nudge-right="40"
+                    :return-value.sync="editedItem.hora"
+                    lazy
+                    transition="scale-transition"
+                    offset-y
+                    full-width
+                    max-width="290px"
+                    min-width="290px"
+                  >
+                    <v-text-field
+                      slot="activator"
+                      v-model="editedItem.hora"
+                      label="Hora Salida"
+                      outline
+                      readonly
+                    ></v-text-field>
+                    <v-time-picker
+                      v-if="timepicker"
+                      v-model="editedItem.hora"
+                      format="24hr"
+                      full-width
+                      @change="$refs.time1.save(editedItem.hora)"
+                    ></v-time-picker>
+                  </v-menu>
+                </v-flex>
 
-            </v-layout>
-            
-            <v-layout wrap>
-              <v-flex xs12 md6>
-                Mostrar lista de trayectos y bus qe lo tienen
-              </v-flex>
-            </v-layout>
-          </v-container>
+              </v-layout>
+              
+              <v-layout wrap>
+                <v-flex xs12 md6>
+                  Mostrar lista de trayectos y bus qe lo tienen
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -150,7 +156,7 @@
 </template>
 
 <script>
-  // import API from '@pi/app'
+  import API from '../services/api/app.js'
   // import Tabla from '../components/Tabla'
   import moment from 'moment'
   export default {
@@ -172,39 +178,149 @@
           {text: '', value: 'edit', sortable: false},
           {text: '', value: 'delete', sortable: false}
         ],
-        horarios: [
-          {
-            fecha: '22/2/1987',
-            hora: '22:00:00'
-          },
-          {
-            fecha: '2/2/2178',
-            hora: '17:00:00'
-          }
-        ]
+        horarios: [],
+        valid: true
       }
     },
-    // mounted () {
-    //   this.getbuses()
-    // },
+mounted () {
+      this.getHorarios()
+    },
     methods: {
-      computedDateFormattedMomentjs (data) {
-        return data ? moment(data).lang('es').format('dddd DD/MM/YYYY') : ''
+       async getHorarios () {
+        try {
+          let horarios = await API.selectAll('horario')
+          if (horarios.status >= 200 && horarios.status < 300) {
+            console.log('horarios', horarios)
+            setTimeout(() => {
+              this.horarios = horarios.data
+              this.loading = false
+            }, 500)
+          }
+        } catch (e) {
+          console.log('catch err', e)
+        }
+      },
+      async save (guardar) {
+        console.log('a guardar', guardar)
+        if (this.$refs.form.validate()) {
+          let id = guardar.id
+          if (id) {
+            try {
+              let puthorario = await API.update('horario', id, guardar)
+              if (puthorario.status >= 200 && puthorario.status < 300) {
+                this.getHorarios()
+                this.dialog = false
+                this.$swal({
+                  type: 'success',
+                  customClass: 'modal-info',
+                  timer: 2000,
+                  title: 'Horario',
+                  text: 'Horario actualizado exitosamente!',
+                  animation: true,
+                  showConfirmButton: false,
+                  showCloseButton: false
+                })
+                this.editedItem = Object.assign({}, '')
+              }
+            } catch (e) {
+              console.log('catch err', e.response)
+              this.editedItem = Object.assign({}, '')
+              this.dialog = false
+              this.$swal({
+                type: 'error',
+                customClass: 'modal-info',
+                timer: 2000,
+                title: 'Ha ocurrido un error',
+                text: 'Ha ocurrido un error editando el horario, intente más tarde.',
+                animation: true,
+                showConfirmButton: false,
+                showCloseButton: false
+              })
+            }
+          } else {
+            try {
+              let posthorario = await API.insert('horario', guardar)
+              if (posthorario.status >= 200 && posthorario.status < 300) {
+                console.log('result post horario', posthorario)
+                this.editedItem = Object.assign({}, '')
+                this.getHorarios()
+                this.dialog = false
+                this.$swal({
+                  type: 'success',
+                  customClass: 'modal-info',
+                  timer: 2000,
+                  title: 'Horario',
+                  text: 'Horario creado exitosamente!',
+                  animation: true,
+                  showConfirmButton: false,
+                  showCloseButton: false
+                })
+              }
+            } catch (e) {
+              console.log('catch err', e.response)
+              this.editedItem = Object.assign({}, '')
+              this.dialog = false
+              this.$swal({
+                type: 'error',
+                customClass: 'modal-info',
+                title: 'Ha ocurrido un error',
+                text: 'Ha ocurrido un error creando el horario, intente más tarde.',
+                animation: true,
+                showConfirmButton: false,
+                showCloseButton: false
+              })
+            }
+          }
+        }
       },
       editItem (item) {
         this.editedItem = item
         this.dialog = true
       },
-      goDelete (item) {
-        this.elimina = item
+      goDelete (itemid) {
+        this.elimina = itemid
         this.confirmaAnular = true
       },
-      deleteItem () {
-        this.confirmaAnular = true
+      async deleteItem () {
+        try {
+          let eliminando = await API.delete('horario', this.elimina)
+          if (eliminando.status >= 200 && eliminando.status < 300) {
+            console.log('ya hizo DELETE horario', eliminando)
+            this.getCars()
+            this.confirmaAnular = false
+            this.$swal({
+              type: 'success',
+              customClass: 'modal-info',
+              timer: 2000,
+              title: 'Horario',
+              text: 'Horario eliminado exitosamente!',
+              animation: true,
+              showConfirmButton: false,
+              showCloseButton: false
+            })
+          }
+        } catch (e) {
+          console.log('catch err', e.response)
+          this.editedItem = Object.assign({}, '')
+          this.confirmaAnular = false
+          this.$swal({
+            type: 'error',
+            customClass: 'modal-info',
+            timer: 2000,
+            title: 'Ha ocurrido un error',
+            text: 'Ha ocurrido un error eliminando el horario, intente más tarde.',
+            animation: true,
+            showConfirmButton: false,
+            showCloseButton: false
+          })
+        }
       },
       close () {
         this.dialog = false
         this.editedItem = {}
+      },
+      computedDateFormattedMomentjs (data) {
+        return data ? moment(data).lang('es').format('MM/DD/YYYY') : ''
       }
     }
   }

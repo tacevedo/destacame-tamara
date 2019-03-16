@@ -8,38 +8,44 @@
             <h3 class="headline">Trayecto</h3>
         </v-card-title>
         <v-card-text>
-          <v-container grid-list-md>
-            <v-layout wrap>
-              <v-flex xs12 md6>
-                <v-text-field label="Ida" outline v-model="editedItem.ida"></v-text-field>
-              </v-flex>
-              <v-flex xs12 md6>
-                <v-text-field label="Vuelta" outline v-model="editedItem.vuelta"></v-text-field>
-              </v-flex>
-            </v-layout>
-            <v-layout wrap>
-              <v-flex xs12 sm6>
-                <v-text-field label="Terminal" outline v-model="editedItem.terminal"></v-text-field>
-              </v-flex>
-            </v-layout>
-            <v-layout wrap>
-              <button @click="addRow">Agregar Horario y Bus</button>
-              <v-flex xs12>
-                <v-layout wrap v-for="(input, index) in inputs" :key="index">
-                  <v-flex xs5>
-                      <v-text-field label="Horario" outline v-model="input.horario"></v-text-field>
-                  </v-flex>
-                  <v-flex xs5>
-                      <v-text-field label="Bus" outline v-model="input.bus"></v-text-field>
-                  </v-flex>
-                  <v-flex xs2>
-                      <button @click="deleteRow(index)">Delete</button>
-                  </v-flex>
-                </v-layout>
-              
-              </v-flex>
-            </v-layout>
-          </v-container>
+          <v-form
+            ref="form"
+            v-model="valid"
+            lazy-validation
+          >
+            <v-container grid-list-md>
+              <v-layout wrap>
+                <v-flex xs12 md6>
+                  <v-text-field label="Ida" outline v-model="editedItem.ida"></v-text-field>
+                </v-flex>
+                <v-flex xs12 md6>
+                  <v-text-field label="Vuelta" outline v-model="editedItem.vuelta"></v-text-field>
+                </v-flex>
+              </v-layout>
+              <v-layout wrap>
+                <v-flex xs12 sm6>
+                  <v-text-field label="Terminal" outline v-model="editedItem.terminal"></v-text-field>
+                </v-flex>
+              </v-layout>
+              <v-layout wrap>
+                <button @click="addRow">Agregar Horario y Bus</button>
+                <v-flex xs12>
+                  <v-layout wrap v-for="(input, index) in inputs" :key="index">
+                    <v-flex xs5>
+                        <v-text-field label="Horario" outline v-model="input.horario"></v-text-field>
+                    </v-flex>
+                    <v-flex xs5>
+                        <v-text-field label="Bus" outline v-model="input.bus"></v-text-field>
+                    </v-flex>
+                    <v-flex xs2>
+                        <button @click="deleteRow(index)">Delete</button>
+                    </v-flex>
+                  </v-layout>
+                
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -107,7 +113,7 @@
                 small
                 slot="activator"
                 color="primary"
-                @click="irEliminar(props.item.id)"
+                @click="goDelete(props.item.id)"
               >
                 delete
               </v-icon>
@@ -128,6 +134,8 @@
 </template>
 
 <script>
+  import API from '../services/api/app.js'
+
   export default {
     name: 'Trayectos',
     data () {
@@ -152,15 +160,149 @@
           {text: '', value: 'edit', sortable: false},
           {text: '', value: 'delete', sortable: false}
         ],
-        trayectos: [
-          {ida: 'Stgo', vuelta: 'Talca', terminal: 'Borja'},
-          {ida: 'Serena', vuelta: 'Vina', terminal: 'terminal1'},
-          {ida: 'Valparaiso', vuelta: 'Con con', terminal: 'T1'}
-        ],
-        inputs: []
+        trayectos: [],
+        inputs: [],
+        valid: true,
+        elimina: ''
       }
     },
+    mounted () {
+      this.getTrayectos()
+    },
     methods: {
+       async getTrayectos () {
+        try {
+          let respuesta = await API.selectAll('trayecto')
+          if (respuesta.status >= 200 && respuesta.status < 300) {
+            // console.log('buses', respuesta)
+            setTimeout(() => {
+              this.trayectos = respuesta.data
+              this.loading = false
+            }, 500)
+          }
+        } catch (e) {
+          // console.log('catch err', e)
+        }
+      },
+      async save (guardar) {
+        // console.log('a guardar', guardar)
+        if (this.$refs.form.validate()) {
+          let id = guardar.id
+          if (id) {
+            try {
+              let putTrayecto = await API.update('trayecto', id, guardar)
+              if (putTrayecto.status >= 200 && putTrayecto.status < 300) {
+                this.getTrayectos()
+                this.dialog = false
+                this.$swal({
+                  type: 'success',
+                  customClass: 'modal-info',
+                  timer: 2000,
+                  title: 'Trayectos',
+                  text: 'Trayecto actualizado exitosamente!',
+                  animation: true,
+                  showConfirmButton: false,
+                  showCloseButton: false
+                })
+                this.editedItem = Object.assign({}, '')
+              }
+            } catch (e) {
+              // console.log('catch err', e.response)
+              this.editedItem = Object.assign({}, '')
+              this.dialog = false
+              this.$swal({
+                type: 'error',
+                customClass: 'modal-info',
+                timer: 2000,
+                title: 'Ha ocurrido un error',
+                text: 'Ha ocurrido un error editando el trayecto, intente más tarde.',
+                animation: true,
+                showConfirmButton: false,
+                showCloseButton: false
+              })
+            }
+          } else {
+            try {
+              let postTrayectos = await API.insert('trayecto', guardar)
+              if (postTrayectos.status >= 200 && postTrayectos.status < 300) {
+                // console.log('result post bus', postTrayectos)
+                this.editedItem = Object.assign({}, '')
+                this.getTrayectos()
+                this.dialog = false
+                this.$swal({
+                  type: 'success',
+                  customClass: 'modal-info',
+                  timer: 2000,
+                  title: 'Trayectos',
+                  text: 'Trayecto creado exitosamente!',
+                  animation: true,
+                  showConfirmButton: false,
+                  showCloseButton: false
+                })
+              }
+            } catch (e) {
+              // console.log('catch err', e.response)
+              this.editedItem = Object.assign({}, '')
+              this.dialog = false
+              this.$swal({
+                type: 'error',
+                customClass: 'modal-info',
+                title: 'Ha ocurrido un error',
+                text: 'Ha ocurrido un error creando el Trayecto, intente más tarde.',
+                animation: true,
+                showConfirmButton: false,
+                showCloseButton: false
+              })
+            }
+          }
+        }
+      },
+      editItem (item) {
+        this.editedItem = item
+        this.dialog = true
+      },
+      goDelete (itemid) {
+        this.elimina = itemid
+        this.confirmaAnular = true
+      },
+      async deleteItem () {
+        try {
+          let eliminando = await API.delete('trayecto', this.elimina)
+          if (eliminando.status >= 200 && eliminando.status < 300) {
+            // console.log('ya hizo DELETE Trayecto', eliminando)
+            this.getCars()
+            this.confirmaAnular = false
+            this.$swal({
+              type: 'success',
+              customClass: 'modal-info',
+              timer: 2000,
+              title: 'Trayectos',
+              text: 'Trayecto eliminado exitosamente!',
+              animation: true,
+              showConfirmButton: false,
+              showCloseButton: false
+            })
+          }
+        } catch (e) {
+          // console.log('catch err', e.response)
+          this.editedItem = Object.assign({}, '')
+          this.confirmaAnular = false
+          this.$swal({
+            type: 'error',
+            customClass: 'modal-info',
+            timer: 2000,
+            title: 'Ha ocurrido un error',
+            text: 'Ha ocurrido un error eliminando el Trayecto, intente más tarde.',
+            animation: true,
+            showConfirmButton: false,
+            showCloseButton: false
+          })
+        }
+      },
+      close () {
+        this.dialog = false
+        this.editedItem = {}
+      },
       addRow() {
         this.inputs.push({
           one: '',
@@ -169,18 +311,6 @@
       },
       deleteRow(index) {
         this.inputs.splice(index,1)
-      },
-      irEliminar (datoid) {
-        this.eliminaid = datoid
-        this.confirmaAnular = true
-      },
-      close () {
-        this.dialog = false
-        this.editedItem = Object.assign({}, '')
-      },
-      editItem (item) {
-        this.editedItem = item
-        this.dialog = true
       }
     }
   }
