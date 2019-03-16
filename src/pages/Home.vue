@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 color="primary"> Asignar asiento a un usuario </h1>
+    <h1 class="secondary--text"> Asignar asiento a un usuario </h1>
   </div>
 </template>
 

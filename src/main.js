@@ -10,7 +10,7 @@ Vue.use(VueRouter)
 Vue.use(Vuetify, {
   theme: {
     primary: '#4285F4',
-    secondary: '#424242',
+    secondary: '#D82768',
     accent: '#82B1FF',
     error: '#ff4444',
     info: '#33b5e5',

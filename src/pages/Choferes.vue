@@ -1,37 +1,32 @@
 <template>
-  <div>
-    <div class="py-3"><h2>Choferes</h2> </div>
+  <div class="pa-3">
+    <h2 class="py-3 secondary--text">Choferes</h2>
     
     <v-dialog v-model="dialog" persistent max-width="900px" style="text-align: right">
       <v-card>
-        <v-card-title primary-title class="primary white--text">
-            <h3 class="headline">Chofer</h3>
+        <v-card-title primary-title>
+            <h3 class="headline secondary--text">Chofer</h3>
         </v-card-title>
         <v-card-text>
           <v-container grid-list-md>
             <v-layout wrap>
               <v-flex xs12 md6>
-                <v-text-field label="Nombre"
-                              v-model="editedItem.nombre"></v-text-field>
+                <v-text-field label="Nombre" outline v-model="editedItem.nombre"></v-text-field>
               </v-flex>
-              
+              <v-flex xs12 md6>
+                <v-text-field label="Apellido" outline v-model="editedItem.apellido"></v-text-field>
+              </v-flex>
             </v-layout>
             <v-layout wrap>
-              
-              <v-flex xs12 md6>
-                <v-text-field label="Apellido"
-                              v-model="editedItem.apellido"></v-text-field>
-              </v-flex>
               <v-flex xs12 sm6>
-                <v-text-field label="Rut"
-                              v-model="editedItem.rut"></v-text-field>
+                <v-text-field label="Rut" outline v-model="editedItem.rut"></v-text-field>
               </v-flex>
             </v-layout>
           </v-container>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary darken-1" flat @click.native="close()">Cancelar</v-btn>
+          <v-btn color="primary darken-1" outline @click.native="close()">Cancelar</v-btn>
           <v-btn color="primary" class='white--text' @click.native="save(editedItem)">Guardar</v-btn>
         </v-card-actions>
       </v-card>
@@ -43,9 +38,8 @@
         <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el Chofer?</v-card-title>
         <v-card-text>Una vez realizada esta acción no podrá recuperar los datos.</v-card-text>
         <v-card-actions class="pb-3 px-3">
-          
-          <v-btn color="primary" outline @click.native="confirmaAnular = false">Volver</v-btn>
           <v-spacer></v-spacer>
+          <v-btn color="primary" outline @click.native="confirmaAnular = false">Volver</v-btn>
           <v-btn color="primary" @click="deleteItem(eliminaid)">Eliminar</v-btn>
         </v-card-actions>
       </v-card>

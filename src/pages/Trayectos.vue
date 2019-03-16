@@ -1,37 +1,49 @@
 <template>
-  <div>
-    <div class="py-3"><h2>Trayectos</h2> </div>
+  <div class="pa-3">
+    <h2 class="py-3 secondary--text">Trayectos</h2>
     
     <v-dialog v-model="dialog" persistent max-width="900px" style="text-align: right">
       <v-card>
-        <v-card-title primary-title class="primary white--text">
+        <v-card-title primary-title class="secondary--text">
             <h3 class="headline">Trayecto</h3>
         </v-card-title>
         <v-card-text>
           <v-container grid-list-md>
             <v-layout wrap>
               <v-flex xs12 md6>
-                <v-text-field label="Ida"
-                              v-model="editedItem.ida"></v-text-field>
+                <v-text-field label="Ida" outline v-model="editedItem.ida"></v-text-field>
               </v-flex>
-              
+              <v-flex xs12 md6>
+                <v-text-field label="Vuelta" outline v-model="editedItem.vuelta"></v-text-field>
+              </v-flex>
             </v-layout>
             <v-layout wrap>
-              
-              <v-flex xs12 md6>
-                <v-text-field label="Vuelta"
-                              v-model="editedItem.vuelta"></v-text-field>
-              </v-flex>
               <v-flex xs12 sm6>
-                <v-text-field label="Terminal"
-                              v-model="editedItem.terminal"></v-text-field>
+                <v-text-field label="Terminal" outline v-model="editedItem.terminal"></v-text-field>
+              </v-flex>
+            </v-layout>
+            <v-layout wrap>
+              <button @click="addRow">Agregar Horario y Bus</button>
+              <v-flex xs12>
+                <v-layout wrap v-for="(input, index) in inputs" :key="index">
+                  <v-flex xs5>
+                      <v-text-field label="Horario" outline v-model="input.horario"></v-text-field>
+                  </v-flex>
+                  <v-flex xs5>
+                      <v-text-field label="Bus" outline v-model="input.bus"></v-text-field>
+                  </v-flex>
+                  <v-flex xs2>
+                      <button @click="deleteRow(index)">Delete</button>
+                  </v-flex>
+                </v-layout>
+              
               </v-flex>
             </v-layout>
           </v-container>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary darken-1" flat @click.native="close()">Cancelar</v-btn>
+          <v-btn color="primary darken-1" outline @click.native="close()">Cancelar</v-btn>
           <v-btn color="primary" class='white--text' @click.native="save(editedItem)">Guardar</v-btn>
         </v-card-actions>
       </v-card>
@@ -43,9 +55,8 @@
         <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el trayecto?</v-card-title>
         <v-card-text>Una vez realizada esta acción no podrá recuperar los datos.</v-card-text>
         <v-card-actions class="pb-3 px-3">
-          
+          <v-spacer></v-spacer>          
           <v-btn color="primary" outline @click.native="confirmaAnular = false">Volver</v-btn>
-          <v-spacer></v-spacer>
           <v-btn color="primary" @click="deleteItem(eliminaid)">Eliminar</v-btn>
         </v-card-actions>
       </v-card>
@@ -142,25 +153,23 @@
           {text: '', value: 'delete', sortable: false}
         ],
         trayectos: [
-          {
-            ida: '113939483-5',
-            vuelta: 'Bus 2',
-            terminal: 'EST'
-          },
-          {
-            ida: '113939483-5',
-            vuelta: 'Bus 2',
-            terminal: 'EST'
-          },
-          {
-            ida: '113939483-5',
-            vuelta: 'Bus 2',
-            terminal: 'EST'
-          }
-        ]
+          {ida: 'Stgo', vuelta: 'Talca', terminal: 'Borja'},
+          {ida: 'Serena', vuelta: 'Vina', terminal: 'terminal1'},
+          {ida: 'Valparaiso', vuelta: 'Con con', terminal: 'T1'}
+        ],
+        inputs: []
       }
     },
     methods: {
+      addRow() {
+        this.inputs.push({
+          one: '',
+          two: ''
+        })
+      },
+      deleteRow(index) {
+        this.inputs.splice(index,1)
+      },
       irEliminar (datoid) {
         this.eliminaid = datoid
         this.confirmaAnular = true
