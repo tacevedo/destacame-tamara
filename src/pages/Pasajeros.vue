@@ -8,21 +8,27 @@
             <h3 class="headline">Pasajero</h3>
         </v-card-title>
         <v-card-text>
-          <v-container grid-list-md>
-            <v-layout wrap>
-              <v-flex xs12 md6>
-                <v-text-field label="Nombre" outline v-model="editedItem.nombre"></v-text-field>
-              </v-flex>
-              <v-flex xs12 md6>
-                <v-text-field label="Apellido" outline v-model="editedItem.apellido"></v-text-field>
-              </v-flex>
-            </v-layout>
-            <v-layout wrap>
-              <v-flex xs12 sm6>
-                <v-text-field label="Rut" outline v-model="editedItem.rut"></v-text-field>
-              </v-flex>
-            </v-layout>
-          </v-container>
+          <v-form
+            ref="form"
+            v-model="valid"
+            lazy-validation
+          >
+            <v-container grid-list-md>
+              <v-layout wrap>
+                <v-flex xs12 md6>
+                  <v-text-field label="Nombre" outline v-model="editedItem.nombre"></v-text-field>
+                </v-flex>
+                <v-flex xs12 md6>
+                  <v-text-field label="Apellido" outline v-model="editedItem.apellido"></v-text-field>
+                </v-flex>
+              </v-layout>
+              <v-layout wrap>
+                <v-flex xs12 sm6>
+                  <v-text-field label="Rut" outline v-model="editedItem.rut"></v-text-field>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -90,7 +96,7 @@
                 small
                 slot="activator"
                 color="primary"
-                @click="irEliminar(props.item.id)"
+                @click="goDelete(props.item.id)"
               >
                 delete
               </v-icon>
@@ -111,6 +117,8 @@
 </template>
 
 <script>
+  import API from '../services/api/app.js'
+
   export default {
     name: 'Pasajeros',
     data () {
@@ -135,37 +143,147 @@
           {text: '', value: 'edit', sortable: false},
           {text: '', value: 'delete', sortable: false}
         ],
-        pasajeros: [
-          {
-            nombre: '113939483-5',
-            apellido: 'Bus 2',
-            rut: 'EST'
-          },
-          {
-            nombre: '113939483-5',
-            apellido: 'Bus 2',
-            rut: 'EST'
-          },
-          {
-            nombre: '113939483-5',
-            apellido: 'Bus 2',
-            rut: 'EST'
-          }
-        ]
+        pasajeros: [],
+        valid: true,
+        elimina: ''
       }
     },
+   mounted () {
+      this.getPasajeros()
+    },
     methods: {
-      irEliminar (datoid) {
-        this.eliminaid = datoid
-        this.confirmaAnular = true
+       async getPasajeros () {
+        try {
+          let respuesta = await API.selectAll('pasajero')
+          if (respuesta.status >= 200 && respuesta.status < 300) {
+            console.log('buses', respuesta)
+            setTimeout(() => {
+              this.pasajeros = respuesta.data
+              this.loading = false
+            }, 500)
+          }
+        } catch (e) {
+          console.log('catch err', e)
+        }
       },
-      close () {
-        this.dialog = false
-        this.editedItem = Object.assign({}, '')
+      async save (guardar) {
+        console.log('a guardar', guardar)
+        if (this.$refs.form.validate()) {
+          let id = guardar.id
+          if (id) {
+            try {
+              let putPasajero = await API.update('pasajero', id, guardar)
+              if (putPasajero.status >= 200 && putPasajero.status < 300) {
+                this.getPasajeros()
+                this.dialog = false
+                this.$swal({
+                  type: 'success',
+                  customClass: 'modal-info',
+                  timer: 2000,
+                  title: 'Pasajero',
+                  text: 'Pasajero actualizado exitosamente!',
+                  animation: true,
+                  showConfirmButton: false,
+                  showCloseButton: false
+                })
+                this.editedItem = Object.assign({}, '')
+              }
+            } catch (e) {
+              console.log('catch err', e.response)
+              this.editedItem = Object.assign({}, '')
+              this.dialog = false
+              this.$swal({
+                type: 'error',
+                customClass: 'modal-info',
+                timer: 2000,
+                title: 'Ha ocurrido un error',
+                text: 'Ha ocurrido un error editando el pasajero, intente más tarde.',
+                animation: true,
+                showConfirmButton: false,
+                showCloseButton: false
+              })
+            }
+          } else {
+            try {
+              let postPasajero = await API.insert('pasajero', guardar)
+              if (postPasajero.status >= 200 && postPasajero.status < 300) {
+                console.log('result post pasajero', postPasajero)
+                this.editedItem = Object.assign({}, '')
+                this.getPasajeros()
+                this.dialog = false
+                this.$swal({
+                  type: 'success',
+                  customClass: 'modal-info',
+                  timer: 2000,
+                  title: 'Pasajero',
+                  text: 'Pasajero creado exitosamente!',
+                  animation: true,
+                  showConfirmButton: false,
+                  showCloseButton: false
+                })
+              }
+            } catch (e) {
+              console.log('catch err', e.response)
+              this.editedItem = Object.assign({}, '')
+              this.dialog = false
+              this.$swal({
+                type: 'error',
+                customClass: 'modal-info',
+                title: 'Ha ocurrido un error',
+                text: 'Ha ocurrido un error creando el Pasajero, intente más tarde.',
+                animation: true,
+                showConfirmButton: false,
+                showCloseButton: false
+              })
+            }
+          }
+        }
       },
       editItem (item) {
         this.editedItem = item
         this.dialog = true
+      },
+      goDelete (itemid) {
+        this.elimina = itemid
+        this.confirmaAnular = true
+      },
+      async deleteItem () {
+        try {
+          let eliminando = await API.delete('pasajero', this.elimina)
+          if (eliminando.status >= 200 && eliminando.status < 300) {
+            console.log('ya hizo DELETE pasajero', eliminando)
+            this.getPasajeros()
+            this.confirmaAnular = false
+            this.$swal({
+              type: 'success',
+              customClass: 'modal-info',
+              timer: 2000,
+              title: 'Pasajero',
+              text: 'Pasajero eliminado exitosamente!',
+              animation: true,
+              showConfirmButton: false,
+              showCloseButton: false
+            })
+          }
+        } catch (e) {
+          console.log('catch err', e.response)
+          this.editedItem = Object.assign({}, '')
+          this.confirmaAnular = false
+          this.$swal({
+            type: 'error',
+            customClass: 'modal-info',
+            timer: 2000,
+            title: 'Ha ocurrido un error',
+            text: 'Ha ocurrido un error eliminando el pasajero, intente más tarde.',
+            animation: true,
+            showConfirmButton: false,
+            showCloseButton: false
+          })
+        }
+      },
+      close () {
+        this.dialog = false
+        this.editedItem = {}
       }
     }
   }

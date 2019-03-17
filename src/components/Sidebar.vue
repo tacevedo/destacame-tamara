@@ -5,15 +5,11 @@
     fixed
     stateless permanent
     app
-    v-click-outside="outside"
     :width="260"
     id="sidebar"
   >
-
-
     <v-list dense class="pb-5">
       <div v-for="(item, i) in items" v-bind:key="i">
-
         <v-list-tile :to="item.path">
           <v-list-tile-action>
             <v-icon>{{item.icon}}</v-icon>
@@ -24,7 +20,6 @@
             </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-
       </div>
     </v-list>
   </v-navigation-drawer>
@@ -39,8 +34,7 @@
         {icon: 'directions_bus', text: 'Buses', path: { path: '/buses' }},
         {icon: 'power_input', text: 'Trayectos', path: { path: '/trayectos' }},
         {icon: 'airline_seat_recline_normal', text: 'Choferes', path: { path: '/choferes' }},
-        {icon: 'directions_walk', text: 'Pasajeros', path: { path: '/pasajeros' }},
-        {icon: 'access_time', text: 'Horarios', path: { path: '/horarios' }},
+        {icon: 'directions_walk', text: 'Pasajeros', path: { path: '/pasajeros' }}
       ]
     })
   }

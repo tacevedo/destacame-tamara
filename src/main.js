@@ -3,10 +3,12 @@ import App from './App.vue'
 import VueRouter from 'vue-router'
 import router from './router'
 import Vuetify from 'vuetify'
+import VueSweetalert2 from 'vue-sweetalert2'
 import 'vuetify/dist/vuetify.min.css'
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
 Vue.use(VueRouter)
+Vue.use(VueSweetalert2)
 Vue.use(Vuetify, {
   theme: {
     primary: '#4285F4',

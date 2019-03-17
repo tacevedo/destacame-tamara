@@ -8,21 +8,27 @@
             <h3 class="headline secondary--text">Chofer</h3>
         </v-card-title>
         <v-card-text>
-          <v-container grid-list-md>
-            <v-layout wrap>
-              <v-flex xs12 md6>
-                <v-text-field label="Nombre" outline v-model="editedItem.nombre"></v-text-field>
-              </v-flex>
-              <v-flex xs12 md6>
-                <v-text-field label="Apellido" outline v-model="editedItem.apellido"></v-text-field>
-              </v-flex>
-            </v-layout>
-            <v-layout wrap>
-              <v-flex xs12 sm6>
-                <v-text-field label="Rut" outline v-model="editedItem.rut"></v-text-field>
-              </v-flex>
-            </v-layout>
-          </v-container>
+          <v-form
+            ref="form"
+            v-model="valid"
+            lazy-validation
+          >
+            <v-container grid-list-md>
+              <v-layout wrap>
+                <v-flex xs12 md6>
+                  <v-text-field label="Nombre" outline v-model="editedItem.nombre"></v-text-field>
+                </v-flex>
+                <v-flex xs12 md6>
+                  <v-text-field label="Apellido" outline v-model="editedItem.apellido"></v-text-field>
+                </v-flex>
+              </v-layout>
+              <v-layout wrap>
+                <v-flex xs12 sm6>
+                  <v-text-field label="Rut" outline v-model="editedItem.rut"></v-text-field>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -40,7 +46,7 @@
         <v-card-actions class="pb-3 px-3">
           <v-spacer></v-spacer>
           <v-btn color="primary" outline @click.native="confirmaAnular = false">Volver</v-btn>
-          <v-btn color="primary" @click="deleteItem(eliminaid)">Eliminar</v-btn>
+          <v-btn color="primary" @click="deleteItem()">Eliminar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -90,7 +96,7 @@
                 small
                 slot="activator"
                 color="primary"
-                @click="irEliminar(props.item.id)"
+                @click="goDelete(props.item.id)"
               >
                 delete
               </v-icon>
@@ -111,6 +117,8 @@
 </template>
 
 <script>
+  import API from '../services/api/app.js'
+
   export default {
     name: 'Choferes',
     data () {
@@ -135,37 +143,147 @@
           {text: '', value: 'edit', sortable: false},
           {text: '', value: 'delete', sortable: false}
         ],
-        choferes: [
-          {
-            nombre: '113939483-5',
-            apellido: 'Bus 2',
-            rut: 'EST'
-          },
-          {
-            nombre: '113939483-5',
-            apellido: 'Bus 2',
-            rut: 'EST'
-          },
-          {
-            nombre: '113939483-5',
-            apellido: 'Bus 2',
-            rut: 'EST'
-          }
-        ]
+        choferes: [],
+        valid: true,
+        elimina: ''
       }
     },
+    mounted () {
+      this.getChoferes()
+    },
     methods: {
-      irEliminar (datoid) {
-        this.eliminaid = datoid
-        this.confirmaAnular = true
+       async getChoferes () {
+        try {
+          let respuesta = await API.selectAll('chofer')
+          if (respuesta.status >= 200 && respuesta.status < 300) {
+            console.log('buses', respuesta)
+            setTimeout(() => {
+              this.choferes = respuesta.data
+              this.loading = false
+            }, 500)
+          }
+        } catch (e) {
+          console.log('catch err', e)
+        }
       },
-      close () {
-        this.dialog = false
-        this.editedItem = Object.assign({}, '')
+      async save (guardar) {
+        console.log('a guardar', guardar)
+        if (this.$refs.form.validate()) {
+          let id = guardar.id
+          if (id) {
+            try {
+              let putChofer = await API.update('chofer', id, guardar)
+              if (putChofer.status >= 200 && putChofer.status < 300) {
+                this.getChoferes()
+                this.dialog = false
+                this.$swal({
+                  type: 'success',
+                  customClass: 'modal-info',
+                  timer: 2000,
+                  title: 'chofer',
+                  text: 'Chofer actualizado exitosamente!',
+                  animation: true,
+                  showConfirmButton: false,
+                  showCloseButton: false
+                })
+                this.editedItem = Object.assign({}, '')
+              }
+            } catch (e) {
+              console.log('catch err', e)
+              this.editedItem = Object.assign({}, '')
+              this.dialog = false
+              this.$swal({
+                type: 'error',
+                customClass: 'modal-info',
+                timer: 2000,
+                title: 'Ha ocurrido un error',
+                text: 'Ha ocurrido un error editando el chofer, intente más tarde.',
+                animation: true,
+                showConfirmButton: false,
+                showCloseButton: false
+              })
+            }
+          } else {
+            try {
+              let postChofer = await API.insert('chofer', guardar)
+              if (postChofer.status >= 200 && postChofer.status < 300) {
+                console.log('result post bus', postChofer)
+                this.editedItem = Object.assign({}, '')
+                this.getChoferes()
+                this.dialog = false
+                this.$swal({
+                  type: 'success',
+                  customClass: 'modal-info',
+                  timer: 2000,
+                  title: 'chofer',
+                  text: 'Chofer creado exitosamente!',
+                  animation: true,
+                  showConfirmButton: false,
+                  showCloseButton: false
+                })
+              }
+            } catch (e) {
+              console.log('catch err', e.response)
+              this.editedItem = Object.assign({}, '')
+              this.dialog = false
+              this.$swal({
+                type: 'error',
+                customClass: 'modal-info',
+                title: 'Ha ocurrido un error',
+                text: 'Ha ocurrido un error creando el Chofer, intente más tarde.',
+                animation: true,
+                showConfirmButton: false,
+                showCloseButton: false
+              })
+            }
+          }
+        }
       },
       editItem (item) {
         this.editedItem = item
         this.dialog = true
+      },
+      goDelete (itemid) {
+        this.elimina = itemid
+        this.confirmaAnular = true
+      },
+      async deleteItem () {
+        try {
+          let eliminando = await API.delete('chofer', this.elimina)
+          if (eliminando.status >= 200 && eliminando.status < 300) {
+            console.log('ya hizo DELETE chofer', eliminando)
+            this.getChoferes()
+            this.confirmaAnular = false
+            this.$swal({
+              type: 'success',
+              customClass: 'modal-info',
+              timer: 2000,
+              title: 'chofer',
+              text: 'Chofer eliminado exitosamente!',
+              animation: true,
+              showConfirmButton: false,
+              showCloseButton: false
+            })
+          }
+        } catch (e) {
+          console.log('catch err', e)
+          this.editedItem = Object.assign({}, '')
+          this.confirmaAnular = false
+          this.$swal({
+            type: 'error',
+            customClass: 'modal-info',
+            timer: 2000,
+            title: 'Ha ocurrido un error',
+            text: 'Ha ocurrido un error eliminando el chofer, intente más tarde.',
+            animation: true,
+            showConfirmButton: false,
+            showCloseButton: false
+          })
+        }
+      },
+      close () {
+        this.dialog = false
+        this.editedItem = {}
       }
     }
   }
