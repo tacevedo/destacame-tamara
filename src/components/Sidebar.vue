@@ -34,8 +34,7 @@
         {icon: 'directions_bus', text: 'Buses', path: { path: '/buses' }},
         {icon: 'power_input', text: 'Trayectos', path: { path: '/trayectos' }},
         {icon: 'airline_seat_recline_normal', text: 'Choferes', path: { path: '/choferes' }},
-        {icon: 'directions_walk', text: 'Pasajeros', path: { path: '/pasajeros' }},
-        {icon: 'access_time', text: 'Horarios', path: { path: '/horarios' }},
+        {icon: 'directions_walk', text: 'Pasajeros', path: { path: '/pasajeros' }}
       ]
     })
   }

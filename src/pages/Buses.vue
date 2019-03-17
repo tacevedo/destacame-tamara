@@ -86,7 +86,7 @@
         <template slot="items" slot-scope="props">
           <td>{{ props.item.patente }}</td>
           <td>{{ props.item.marca }}</td>
-          <td>{{ props.item.chofer_id }}</td>
+          <td>{{ findChoferName(props.item.id_chofer) }}</td>
           <td class="justify-center">
             <v-tooltip top>
               <v-icon
@@ -151,6 +151,10 @@
       this.getChoferes()
     },
     methods: {
+       findChoferName: function (data) {
+        const chofer = this.choferes.find(item => item.id === data)
+        return chofer ? chofer.nombre : ''
+      },
       async getbuses () {
         try {
           let cars = await API.selectAll('bus')

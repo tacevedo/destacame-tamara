@@ -2,7 +2,7 @@
   <div class="pa-3">
     <h2 class="py-3 secondary--text">Trayectos</h2>
     
-    <v-dialog v-model="dialog" persistent max-width="900px" style="text-align: right">
+    <v-dialog v-model="dialog" persistent max-width="90%" style="text-align: right">
       <v-card>
         <v-card-title primary-title class="secondary--text">
             <h3 class="headline">Trayecto</h3>
@@ -13,35 +13,16 @@
             v-model="valid"
             lazy-validation
           >
-            <v-container grid-list-md>
+            <v-container fluid>
               <v-layout wrap>
-                <v-flex xs12 md6>
+                <v-flex xs12 md6 lg4>
                   <v-text-field label="Ida" outline v-model="editedItem.ida"></v-text-field>
                 </v-flex>
-                <v-flex xs12 md6>
+                <v-flex xs12 md6 lg4>
                   <v-text-field label="Vuelta" outline v-model="editedItem.vuelta"></v-text-field>
                 </v-flex>
-              </v-layout>
-              <v-layout wrap>
-                <v-flex xs12 sm6>
+                <v-flex xs12 sm6 lg4>
                   <v-text-field label="Terminal" outline v-model="editedItem.terminal"></v-text-field>
-                </v-flex>
-              </v-layout>
-              <v-layout wrap>
-                <button @click="addRow">Agregar Horario y Bus</button>
-                <v-flex xs12>
-                  <v-layout wrap v-for="(input, index) in inputs" :key="index">
-                    <v-flex xs5>
-                        <v-text-field label="Horario" outline v-model="input.horario"></v-text-field>
-                    </v-flex>
-                    <v-flex xs5>
-                        <v-text-field label="Bus" outline v-model="input.bus"></v-text-field>
-                    </v-flex>
-                    <v-flex xs2>
-                        <button @click="deleteRow(index)">Delete</button>
-                    </v-flex>
-                  </v-layout>
-                
                 </v-flex>
               </v-layout>
             </v-container>
@@ -68,6 +49,41 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog v-model="dialogHorario" persistent max-width="90%" style="text-align: right">
+      <v-card>
+        <v-card-title primary-title class="secondary--text">
+            <h3 class="headline">Horarios Trayecto</h3>
+        </v-card-title>
+        <v-card-text>
+          <v-container fluid class="pt-0">
+            <v-layout wrap>
+              <v-flex xs12 class="pb-3 text-xs-left">
+                <h4>Trayecto desde {{horarioItem.ida}} hacia
+                  {{horarioItem.vuelta}}, Terminal
+                  {{horarioItem.terminal}}
+                </h4>
+              </v-flex>
+            </v-layout>
+            <v-layout wrap align-center>
+              <v-flex xs12 class="text-xs-right">
+                <v-btn @click="agregarHorario(horarioItem.id)" color="secondary"><v-icon>add</v-icon>Agregar Horario y Bus</v-btn>
+              </v-flex>
+              <v-flex xs12 v-for="(horario, i) in horariosTrayecto" v-bind:key="i">
+                <horario :id_trayecto="horario.id_trayecto"
+                          :id_bus="horario.id_bus"
+                          :fecha="horario.fecha"
+                          :hora="horario.hora"
+                          :horarioid="horario.id"/>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary darken-1" outline @click.native="closeHorarios()">Cerrar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <div class="elevation-1">
       <v-toolbar flat color="white">
         <v-text-field
@@ -94,6 +110,12 @@
           <td>{{ props.item.ida }}</td>
           <td>{{ props.item.vuelta }}</td>
           <td>{{ props.item.terminal }}</td>
+          <td><v-btn flat small
+                slot="activator"
+                color="primary"
+                @click="verHorarios(props.item)"
+              >Ver horarios horarios</v-btn>
+          </td>
           <td class="justify-center">
             <v-tooltip top>
               <v-icon
@@ -135,7 +157,9 @@
 
 <script>
   import API from '../services/api/app.js'
-
+  import Horario from '../components/Horario'
+  import moment from 'moment'
+  
   export default {
     name: 'Trayectos',
     data () {
@@ -157,17 +181,24 @@
           {text: 'Ida', value: 'ida'},
           {text: 'Vuelta', value: 'vuelta'},
           {text: 'Terminal', value: 'terminal'},
+          {text: '', value: 'horario', sortable: false},
           {text: '', value: 'edit', sortable: false},
           {text: '', value: 'delete', sortable: false}
         ],
         trayectos: [],
         inputs: [],
         valid: true,
-        elimina: ''
+        elimina: '',
+        horarioItem: {},
+        dialogHorario: false,
+        horariosTrayecto: []
       }
     },
     mounted () {
       this.getTrayectos()
+    },
+    components: {
+      Horario
     },
     methods: {
        async getTrayectos () {
@@ -257,7 +288,25 @@
           }
         }
       },
+      verHorarios (trayecto) {
+        this.horarioItem = trayecto
+        this.getHorarios(trayecto.id)
+        this.dialogHorario = true
+      },
+      async getHorarios (idTrayecto) {
+        try {
+          let respuesta = await API.selectAll('horario')
+          if (respuesta.status >= 200 && respuesta.status < 300) {
+            console.log('response horarios', respuesta, 'tray', idTrayecto)
+            this.horariosTrayecto = respuesta.data.filter(item => item.id_trayecto === idTrayecto)
+            console.log('horariosTrayecto', this.horariosTrayecto)
+          }
+        } catch (e) {
+          // console.log('catch err', e)
+        }
+      },
       editItem (item) {
+        console.log('edit', item)
         this.editedItem = item
         this.dialog = true
       },
@@ -303,14 +352,19 @@
         this.dialog = false
         this.editedItem = {}
       },
-      addRow() {
-        this.inputs.push({
-          one: '',
-          two: ''
-        })
+      closeHorarios () {
+        this.dialogHorario = false
+        this.horariosTrayecto = []
+        this.horarioItem = {}
+      },
+      agregarHorario(trayectoid) {
+        this.horariosTrayecto.push({fecha: '', hora: '', id_bus: '', id_trayecto: trayectoid})
       },
       deleteRow(index) {
         this.inputs.splice(index,1)
+      },
+      computedDateFormattedMomentjs (data) {
+        return data ? moment(data).lang('es').format('MM/DD/YYYY') : ''
       }
     }
   }
