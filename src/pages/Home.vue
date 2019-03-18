@@ -89,6 +89,7 @@
         pasajerosFull: [],
         pasajeroSeleccionado: {},
         // trayectos: [],
+        asientos: [],
         trayectosFull: [],
         trayectoSeleccionado: {},
         trayectosCompleto: [],
@@ -111,6 +112,7 @@
       // this.$store.dispatch('General/get_trayectos')
       // this.getPasajeros()
       this.getTrayectos()
+      this.getAsientos()
     },
     computed: {
       ...mapGetters({
@@ -131,7 +133,9 @@
         })
       },
       pasajeroSeleccionado (val) {
+        console.log('pasajero sele', val)
         this.$store.dispatch('AsignarPasajero/set_pasajero_seleccionado', {pasajeroId: val})
+        // this.$store.dispatch('AsignarPasajero/set_asignacion', {pasajero: val})
         this.habilitarPasajero = val ? true : false
       },
       trayectoSeleccionado (val) {
@@ -147,13 +151,31 @@
     },
     methods: {
       selectHorario (horario) {
+        console.log('horario', horario)
         this.$store.dispatch('AsignarPasajero/set_horario_seleccionado', {horarioId: horario.id})
-        this.agregarAsiento(horario.id_bus)
-        this.e6 = 4
+        let asientosBus = this.asientos.filter(item => item.id_bus === horario.id_bus)
+        console.log('asiento bus', asientosBus)
+        let asientoslength = asientosBus.length
+        if(asientoslength < 10) {
+          this.agregarAsiento(horario.id_bus, asientosBus.length)
+          this.e6 = 4  
+        } else {
+            this.$swal({
+              type: 'warning',
+              customClass: 'modal-info',
+              timer: 2000,
+              title: 'Asiento',
+              text: 'No hay asientos disponible, escoja otro horario',
+              animation: true,
+              showConfirmButton: false,
+              showCloseButton: false
+            })
+        }
+
       },
-      async agregarAsiento (busid) {
+      async agregarAsiento (busid, asientosLen) {
         let guardar = {
-            num_asiento: 1,
+            num_asiento: asientosLen + 1,
             id_bus: busid,
             id_pasajero: this.pasajeroStore
           }
@@ -162,40 +184,46 @@
           let respuesta = await API.insert('asiento', guardar)
           if (respuesta.status >= 200 && respuesta.status < 300) {
             console.log('respuesta agrear asento')
-            this.$store.dispatch('AsignarPasajero/resetBookingState')
+            
+            const pasajero = this.pasajeros.find(item => item.id === this.pasajeroStore)
+            const trayecto = this.trayectos.find(item => item.id === this.trayectoStore)
             this.$swal({
-                  type: 'success',
-                  customClass: 'modal-info',
-                  timer: 2000,
-                  title: 'Asiento',
-                  text: 'Asiento asignado exitosamente!',
-                  animation: true,
-                  showConfirmButton: false,
-                  showCloseButton: false
-                })
+              type: 'success',
+              customClass: 'modal-info',
+              // timer: 2000,
+              title: 'Asiento',
+              // text: 'Asiento asignado exitosamente!',
+              html: `
+                <p>Asiento fue asignado exitosamente </p>
+                <p> Asiento: <strong>${asientosLen +1}</strong></p>
+                <p> Pasajero: <strong>${pasajero.nombre} ${pasajero.apellido}</strong></p>
+                <p> Trayecto: <strong>${trayecto.ida} - ${trayecto.vuelta}</strong></p>
+              `,
+              animation: true,
+              showCancelButton: true,
+              showConfirmButton: false,
+              cancelButtonText: 'Cerrar'
+            })
             this.pasajeroSeleccionado= ''
             this.trayectoSeleccionado= ''
             this.horarioSeleccionado= ''
+            this.$store.dispatch('AsignarPasajero/resetBookingState')
             this.e6 = 1
           }
         } catch (e) {
           console.log('catch err', e)
         }
       },
-      // async getPasajeros () {
-      //   try {
-      //     let respuesta = await API.selectAll('pasajero')
-      //     if (respuesta.status >= 200 && respuesta.status < 300) {
-      //       this.pasajeros = respuesta.data.map(bus => {
-      //           const item = {...bus}
-      //           item.fullName = `${item.nombre} ${item.apellido}`
-      //           return item
-      //         })
-      //     }
-      //   } catch (e) {
-      //     console.log('catch err', e)
-      //   }
-      // },
+      async getAsientos () {
+        try {
+          let respuesta = await API.selectAll('asiento')
+          if (respuesta.status >= 200 && respuesta.status < 300) {
+            this.asientos = respuesta.data
+          }
+        } catch (e) {
+          console.log('catch err', e)
+        }
+      },
       async getTrayectos () {
         try {
           let respuesta = await API.selectAll('trayecto')
