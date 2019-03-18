@@ -83,7 +83,7 @@
         <v-flex xs12 md3>
           <v-btn small color="secondary" @click="save(horario)">
             <v-icon>add</v-icon>
-            Guardar
+            Agregar
           </v-btn>
           <!-- <v-btn flat small color="primary" @click="$emit('deleteHorario', horario)">
             <span>Eliminar</span>

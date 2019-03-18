@@ -2,7 +2,14 @@
   <v-app id="app">
     <toolbar />
     <sidebar />
-    <router-view class="contenido"/>
+    <v-content>
+      <v-container fluid class="pa-0">
+        <v-layout justify-center align-center>
+          <router-view/>
+        </v-layout>
+      </v-container>
+    </v-content>
+    <!-- <router-view class="contenido"/> -->
   </v-app>
 </template>
 
@@ -26,10 +33,9 @@
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
+    width: 100%;
   }
-  .contenido {
-    margin-left: 260px;
-  }
+
   .title-modal{
     text-align:center;
     padding-bottom:5px;
@@ -47,5 +53,9 @@
       no-repeat; 
     background-size:100% 2px ;
   }
-  /* azuls 79,110,246, rosa (216,39,104 */
+  @media (min-width: 960px){
+    .contenido {
+      /* margin-left: 260px; */
+    } 
+  }
 </style>

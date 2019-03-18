@@ -21,7 +21,7 @@
                 <v-flex xs12 md6 lg4>
                   <v-text-field label="Vuelta" outline v-model="editedItem.vuelta" :rules="[rules.required]" required></v-text-field>
                 </v-flex>
-                <v-flex xs12 sm6 lg4>
+                <v-flex xs12 md6 lg4>
                   <v-text-field label="Terminal" outline v-model="editedItem.terminal" :rules="[rules.required]" required></v-text-field>
                 </v-flex>
               </v-layout>
@@ -78,13 +78,20 @@
                           />
               </v-flex>
               <v-flex xs12 v-for="(horario) in horariosTrayecto" v-bind:key="horario.id" class="text-xs-left">
-                    <v-chip
+                  <v-chip
                       close
                       color="primary"
                       outline
-                      class="subheading"
+                      class="subheading hidden-sm-and-down"
                       @input="deleteHorario(horario)"
                     >Fecha: <strong>{{horario.fecha}}</strong> - Hora: <strong>{{horario.hora}}</strong> - Patente bus: <strong>{{ getBusPatente(horario.id_bus) }}</strong></v-chip>
+                 <v-chip
+                      close
+                      color="primary"
+                      outline
+                      class="hidden-md-and-up"
+                      @input="deleteHorario(horario)"
+                    ><strong>{{horario.fecha}}</strong> - <strong>{{horario.hora}}</strong> - <strong>{{ getBusPatente(horario.id_bus) }}</strong></v-chip>
               </v-flex>
             </v-layout>
           </v-container>
@@ -104,6 +111,7 @@
       </v-toolbar>
 
       <v-data-table
+          class="hidden-sm-and-down"
           :headers="headers"
           :items="trayectos"
           :loading="loading"
@@ -148,6 +156,38 @@
           </td>
         </template>
       </v-data-table>
+
+      <div v-for="trayecto in trayectos" :key="trayecto.id" class="hidden-md-and-up my-2">
+        <v-card>
+          <v-card-title primary-title>
+            <div class="text-xs-left">
+              <p>Ida: <strong>{{trayecto.ida}}</strong></p>
+              <p>Vuelta: <strong>{{trayecto.vuelta}}</strong></p>
+              <p>Terminal: <strong>{{trayecto.terminal}}</strong></p>
+            </div>
+          </v-card-title>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn flat small
+                slot="activator"
+                color="primary"
+                @click="verHorarios(trayecto)"
+              >Ver horarios horarios</v-btn>
+            
+            <v-btn flat color="primary" @click="editItem(trayecto)">
+              <v-icon small>edit</v-icon>
+              Editar
+            </v-btn>
+
+            <v-btn flat color="primary" @click="goDelete(trayecto.id)">
+              <v-icon small>delete</v-icon>
+              Eliminar
+            </v-btn>
+            
+          </v-card-actions>
+        </v-card>
+      </div>
     </div>
         <!-- Modal error-->
     <modal v-if="showModal"

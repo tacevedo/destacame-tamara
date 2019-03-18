@@ -3,7 +3,7 @@
     clipped
     :value="drawer"
     fixed 
-    permanent
+    :permanent="showSide"
     app
     :width="260"
     id="sidebar"
@@ -26,6 +26,8 @@
 </template>
 
 <script>
+  import {mapGetters} from 'vuex'
+  
   export default {
     props: ['drawer'],
     data: () => ({
@@ -36,7 +38,12 @@
         {icon: 'airline_seat_recline_normal', text: 'Choferes', path: { path: '/choferes' }},
         {icon: 'directions_walk', text: 'Pasajeros', path: { path: '/pasajeros' }}
       ]
-    })
+    }),
+    computed: {
+      ...mapGetters({
+        showSide: ['General/showsidebar']
+      })
+    },
   }
 </script>
 <style>

@@ -150,7 +150,7 @@
         excelFields: {
           Patente: 'patente',
           Marca: 'marca',
-          Chofer: 'id_chofer'
+          Chofer: 'nombre_chofer'
         },
         items: []
       }
@@ -164,8 +164,8 @@
       Export
     },
     methods: {
-      findChoferName: function (data) {
-        const chofer = this.choferes.find(item => item.id === data)
+      findChoferName: function (idchofer) {
+        const chofer = this.choferes.find(item => item.id === idchofer)
         return chofer ? chofer.nombre : ''
       },
       async getbuses () {
@@ -176,20 +176,17 @@
             setTimeout(() => {
               this.buses = cars.data
               this.loading = false
-            }, 500)
-            this.items = this.buses.map(item => {
-              for (const prop in item) {
-                // if (prop == 'id_chofer') {
-                //   this.choferes.find(item => {
-                //     if(item.id === data){
-                //       return item.chofer = item.nombre
-                //     }
-                //   })
-                // }
-                if (Number.isInteger(item[prop])) item[prop] = item[prop].toString()
-              }
-              return item
-            })
+              this.items = this.buses.map(item => {
+                for (const prop in item) {
+                  if (prop === 'id_chofer'){
+                    item.nombre_chofer = this.findChoferName(item[prop])
+                  }
+                  if (item[prop] == null) item[prop] = ''
+                  if (Number.isInteger(item[prop])) item[prop] = item[prop].toString()
+                }
+                return item
+              })
+            }, 500)            
           }
         } catch (e) {
           console.log('catch err', e)
