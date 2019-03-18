@@ -39,25 +39,22 @@
     <!-- dialogo confirmar eliminar -->
     <v-dialog v-model="confirmaAnular" persistent max-width="450">
       <v-card>
-        <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el pasajero?</v-card-title>
+         <v-card-title primary-title class="secondary--text">
+            <h3 class="headline title-modal title-modal">¿Esta seguro de eliminar el pasajero?</h3>
+        </v-card-title>
+        <!-- <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el pasajero?</v-card-title> -->
         <v-card-text>Una vez realizada esta acción no podrá recuperar los datos.</v-card-text>
         <v-card-actions class="pb-3 px-3">
           <v-spacer></v-spacer>          
           <v-btn color="primary" outline @click.native="confirmaAnular = false">Volver</v-btn>
-          <v-btn color="primary" @click="deleteItem(eliminaid)">Eliminar</v-btn>
+          <v-btn color="primary" @click="deleteItem()">Eliminar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <div class="elevation-1">
       <v-toolbar flat color="white">
-        <v-text-field
-          v-model="search"
-          append-icon="search"
-          label="Buscar"
-          single-line
-          hide-details
-        ></v-text-field>
+        <export :fields="excelFields" :data="pasajeros" :nameExport="'Pasajeros'" :pdf="true"/>
         <v-spacer></v-spacer>
         <div class="text-xs-right">
           <v-btn color="primary" @click="dialog = true"> <v-icon light>add</v-icon> Agregar pasajero</v-btn>
@@ -67,7 +64,7 @@
       <v-data-table
           :headers="headers"
           :items="pasajeros"
-          :search="search"
+          :loading="loading"
           hide-actions
           no-data-text="No hay pasajeros registrados"
         >
@@ -116,6 +113,7 @@
 
 <script>
   import API from '../services/api/app.js'
+  import Export from '../components/Exporta'
 
   export default {
     name: 'Pasajeros',
@@ -123,7 +121,6 @@
       return {
         confirmaAnular: false,
         dialog: false,
-        search: '',
         loading: true,
         showModal: false,
         modalInfoTitle: '',
@@ -146,11 +143,19 @@
         rules: {
           required: v => !!v || 'Campo requerido'
         },
-        elimina: ''
+        elimina: '',
+        excelFields: {
+          Nombre: 'nombre',
+          Apellido: 'apellido',
+          Rut: 'rut'
+        }
       }
     },
    mounted () {
       this.getPasajeros()
+    },
+    components: {
+      Export
     },
     methods: {
        async getPasajeros () {

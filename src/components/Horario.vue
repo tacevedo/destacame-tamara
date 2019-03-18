@@ -81,7 +81,7 @@
           </v-autocomplete>
         </v-flex>
         <v-flex xs12 md3>
-          <v-btn outline small color="secondary" @click="save(horario)">
+          <v-btn small color="secondary" @click="save(horario)">
             <v-icon>add</v-icon>
             Guardar
           </v-btn>

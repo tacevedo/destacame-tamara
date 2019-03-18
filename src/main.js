@@ -14,7 +14,7 @@ Vue.use(Vuex)
 Vue.use(VueSweetalert2)
 Vue.use(Vuetify, {
   theme: {
-    primary: '#4285F4',
+    primary: '#2F5499',
     secondary: '#D82768',
     accent: '#82B1FF',
     error: '#ff4444',

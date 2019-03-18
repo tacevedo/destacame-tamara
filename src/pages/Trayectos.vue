@@ -2,7 +2,7 @@
   <div class="pa-3">
     <h2 class="py-3 secondary--text">Trayectos</h2>
     
-    <v-dialog v-model="dialog" persistent max-width="90%" style="text-align: right">
+    <v-dialog v-model="dialog" max-width="900px">
       <v-card>
         <v-card-title primary-title class="secondary--text">
             <h3 class="headline title-modal">Trayecto</h3>
@@ -39,20 +39,23 @@
     <!-- dialogo confirmar eliminar -->
     <v-dialog v-model="confirmaAnular" persistent max-width="450">
       <v-card>
-        <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el trayecto?</v-card-title>
+         <v-card-title primary-title class="secondary--text">
+            <h3 class="headline title-modal">¿Esta seguro de eliminar el trayecto?</h3>
+        </v-card-title>
+        <!-- <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el trayecto?</v-card-title> -->
         <v-card-text>Una vez realizada esta acción no podrá recuperar los datos.</v-card-text>
         <v-card-actions class="pb-3 px-3">
           <v-spacer></v-spacer>          
           <v-btn color="primary" outline @click.native="confirmaAnular = false">Volver</v-btn>
-          <v-btn color="primary" @click="deleteItem(eliminaid)">Eliminar</v-btn>
+          <v-btn color="primary" @click="deleteItem()">Eliminar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="dialogHorario" persistent max-width="90%" style="text-align: right">
+    <v-dialog v-model="dialogHorario" max-width="900px">
       <v-card>
         <v-card-title primary-title class="secondary--text">
-            <h3 class="headline">Horarios Trayecto</h3>
+            <h3 class="headline title-modal">Horarios Trayecto</h3>
         </v-card-title>
         <v-card-text>
           <v-container fluid class="pt-0">
@@ -65,7 +68,7 @@
               </v-flex>
             </v-layout>
             <v-layout wrap align-center>
-              <v-flex xs12>
+              <v-flex xs12 class="pb-2">
                 <horario :id_trayecto="nuevohorario.id_trayecto"
                           :id_bus="nuevohorario.id_bus"
                           :fecha="nuevohorario.fecha"
@@ -94,13 +97,6 @@
     </v-dialog>
     <div class="elevation-1">
       <v-toolbar flat color="white">
-        <v-text-field
-          v-model="search"
-          append-icon="search"
-          label="Buscar"
-          single-line
-          hide-details
-        ></v-text-field>
         <v-spacer></v-spacer>
         <div class="text-xs-right">
           <v-btn color="primary" @click="dialog = true"> <v-icon light>add</v-icon> Agregar trayecto</v-btn>
@@ -110,7 +106,7 @@
       <v-data-table
           :headers="headers"
           :items="trayectos"
-          :search="search"
+          :loading="loading"
           hide-actions
           no-data-text="No hay trayectos registrados"
         >
@@ -175,7 +171,6 @@
       return {
         confirmaAnular: false,
         dialog: false,
-        search: '',
         loading: true,
         showModal: false,
         modalInfoTitle: '',

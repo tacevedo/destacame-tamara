@@ -18,7 +18,7 @@
             >
             </v-autocomplete>
         </v-card>
-        <v-btn color="primary" @click="e6 = 2" :disabled="!habilitarPasajero">Continue</v-btn>
+        <v-btn color="primary" @click="e6 = 2" :disabled="!habilitarPasajero">Continuar</v-btn>
       </v-stepper-content>
   
       <v-stepper-step :complete="e6 > 2" step="2">Seleccionar trayecto</v-stepper-step>
@@ -36,48 +36,41 @@
           >
           </v-autocomplete>
         </v-card>
-        <v-btn color="primary" @click="e6 = 3" :disabled="!habilitarTrayecto">Continue</v-btn>
-        <v-btn outline color="primary" @click="e6 = 1">Cancel</v-btn>
+        <v-btn outline color="primary" @click="e6 = 1">Volver</v-btn>
+        <v-btn color="primary" @click="e6 = 3" :disabled="!habilitarTrayecto">Continuar</v-btn>
+        
       </v-stepper-content>
   
       <v-stepper-step :complete="e6 > 3" step="3">Buscar horario</v-stepper-step>
       <v-stepper-content step="3">
         <v-card class="mb-5 elevation-0">
-           <v-data-table
-          :headers="headers"
-          :items="horariosTrayecto"
-          hide-actions
-          no-data-text="No hay buses registrados"
-        >
-        <template slot="items" slot-scope="props">
-          <td>{{ props.item.fecha }}</td>
-          <td>{{ props.item.hora }}</td>
-          <td class="justify-center">
-            <v-btn color="primary"
-                  @click="selectHorario(props.item)">
-              <v-icon
-                small
-                color="white"
-              >
-                check
-              </v-icon> Seleccionar
-            </v-btn>
-          </td>
-        </template>
-      </v-data-table>
+          <v-data-table
+              :headers="headers"
+              :items="horariosTrayecto"
+              hide-actions
+              class="tabla-horarios"
+              no-data-text="No hay buses registrados"
+            >
+            <template slot="items" slot-scope="props">
+              <td>{{ props.item.fecha }}</td>
+              <td>{{ props.item.hora }}</td>
+              <td class="justify-center">
+                <v-btn color="primary"
+                      @click="selectHorario(props.item)">
+                  <v-icon
+                    small
+                    color="white"
+                  >
+                    check
+                  </v-icon> Seleccionar
+                </v-btn>
+              </td>
+            </template>
+          </v-data-table>
         </v-card>
         <!-- <v-btn color="primary" @click="e6 = 4">Continue</v-btn> -->
-        <v-btn outline color="primary" @click="e6 = 2">Cancel</v-btn>
+        <v-btn outline color="primary" @click="e6 = 2">Volver</v-btn>
       </v-stepper-content>
-<!--   
-      <v-stepper-step step="4">Seleccionar asiento</v-stepper-step>
-      <v-stepper-content step="4">
-        <v-card class="mb-5" height="200px">
-
-        </v-card>
-        <v-btn color="primary" @click="e6 = 1">Continue</v-btn>
-        <v-btn flat>Cancel</v-btn>
-      </v-stepper-content> -->
     </v-stepper>
   </div>
 </template>
@@ -202,6 +195,9 @@
   .autocomplete.v-text-field.v-text-field--enclosed {
     width: 50%;
     margin: 0 auto;
+  }
+  .tabla-horarios .v-datatable.v-table.theme--light{
+    border: 1px solid #ccc;
   }
 </style>
 

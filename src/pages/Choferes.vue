@@ -2,7 +2,7 @@
   <div class="pa-3">
     <h2 class="py-3 secondary--text">Choferes</h2>
     
-    <v-dialog v-model="dialog" persistent max-width="900px" style="text-align: right">
+    <v-dialog v-model="dialog" max-width="900px">
       <v-card>
         <v-card-title primary-title>
             <h3 class="headline secondary--text title-modal">Chofer</h3>
@@ -41,7 +41,10 @@
     <!-- dialogo confirmar eliminar -->
     <v-dialog v-model="confirmaAnular" persistent max-width="450">
       <v-card>
-        <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el Chofer?</v-card-title>
+        <v-card-title primary-title>
+            <h3 class="headline secondary--text title-modal">¿Esta seguro de eliminar el Chofer?</h3>
+        </v-card-title>
+        <!-- <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el Chofer?</v-card-title> -->
         <v-card-text>Una vez realizada esta acción no podrá recuperar los datos.</v-card-text>
         <v-card-actions class="pb-3 px-3">
           <v-spacer></v-spacer>
@@ -53,13 +56,7 @@
 
     <div class="elevation-1">
       <v-toolbar flat color="white">
-        <v-text-field
-          v-model="search"
-          append-icon="search"
-          label="Buscar"
-          single-line
-          hide-details
-        ></v-text-field>
+        <export :fields="excelFields" :data="choferes" :nameExport="'Choferes'" :pdf="true"/>
         <v-spacer></v-spacer>
         <div class="text-xs-right">
           <v-btn color="primary" @click="dialog = true"> <v-icon light>add</v-icon> Agregar Chofer</v-btn>
@@ -69,7 +66,7 @@
       <v-data-table
           :headers="headers"
           :items="choferes"
-          :search="search"
+          :loading="loading"
           hide-actions
           no-data-text="No hay choferes registrados"
         >
@@ -118,6 +115,7 @@
 
 <script>
   import API from '../services/api/app.js'
+  import Export from '../components/Exporta'
 
   export default {
     name: 'Choferes',
@@ -125,7 +123,6 @@
       return {
         confirmaAnular: false,
         dialog: false,
-        search: '',
         loading: true,
         showModal: false,
         modalInfoTitle: '',
@@ -148,11 +145,19 @@
         rules: {
           required: v => !!v || 'Campo requerido'
         },
-        elimina: ''
+        elimina: '',
+        excelFields: {
+          Nombre: 'nombre',
+          Apellido: 'apellido',
+          Rut: 'rut'
+        }
       }
     },
     mounted () {
       this.getChoferes()
+    },
+    components: {
+      Export
     },
     methods: {
        async getChoferes () {

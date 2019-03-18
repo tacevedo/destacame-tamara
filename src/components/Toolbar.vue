@@ -1,6 +1,9 @@
 <template>
   <v-toolbar color="primary" class="white--text">
     <!-- <v-toolbar-side-icon></v-toolbar-side-icon> -->
+    <v-toolbar-side-icon 
+        @click.stop="toggleDrawer"
+      ></v-toolbar-side-icon>
     <v-toolbar-title :to="asignarPath">Gestiona viajes</v-toolbar-title>
     <v-spacer></v-spacer>
     <!-- <v-toolbar-items class="hidden-sm-and-down">
@@ -24,6 +27,17 @@
     //   choferesPath: '/choferes',
     //   pasajerosPath: '/pasajeros',
     //   horariosPath: '/horarios'
-    })
+    }),
+    methods: {
+      toggleDrawer () {
+        // if (this.drawer.permanent) {
+        //   this.drawer.permanent = !this.drawer.permanent
+        //   this.drawer.clipped = true
+        //   this.toolbar.clippedLeft = true
+        // } else {
+        //   this.drawer.open = !this.drawer.open
+        // }
+      }
+    }
   }
 </script>

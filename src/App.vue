@@ -38,7 +38,7 @@
       linear-gradient(
         to left, 
         transparent 0%,
-        rgba(79,110,246,1) 47%,
+        #2F5499 47%,
         transparent 100%
       )
       left 

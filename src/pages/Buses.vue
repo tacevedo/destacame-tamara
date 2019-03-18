@@ -1,7 +1,7 @@
 <template>
   <div class="pa-3">
     <h2 class="py-3 secondary--text">Buses</h2>
-    <v-dialog v-model="dialog" persistent max-width="900px">
+    <v-dialog v-model="dialog" max-width="900px">
       <v-card>
         <v-card-title primary-title>
             <h3 class="headline secondary--text title-modal">Bus</h3>
@@ -20,9 +20,6 @@
                 <v-flex xs12 md6>
                   <v-text-field label="Marca" outline v-model="editedItem.marca" :rules="[rules.required]" required></v-text-field>
                 </v-flex>
-              </v-layout>
-              
-              <v-layout wrap>
                 <v-flex xs12 md6>
                   <!-- <v-text-field label="Chofer" type="number" outline v-model="editedItem.id_chofer"></v-text-field> -->
                   <v-autocomplete
@@ -38,6 +35,9 @@
                   >
                   </v-autocomplete>
                 </v-flex>
+                <v-flex xs12 v-for="(asiento) in asientos" v-bind:key="asiento.id" class="text-xs-left">
+                  <p>Asiento: <strong>{{asiento.num_asiento}}</strong> - Pasajero: <strong>{{ getPasajeroNombre(asiento.id_pasajero) }}</strong></p>
+              </v-flex>
               </v-layout>
             </v-container>
           </v-form>
@@ -52,7 +52,10 @@
     <!-- dialogo confirmar eliminar -->
     <v-dialog v-model="confirmaAnular" persistent max-width="450">
       <v-card>
-        <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el Bus?</v-card-title>
+        <v-card-title primary-title>
+            <h3 class="headline secondary--text title-modal">¿Esta seguro de eliminar el Bus?</h3>
+        </v-card-title>
+        <!-- <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el Bus?</v-card-title> -->
         <v-card-text>Una vez realizada esta acción no podrá recuperar el bus.</v-card-text>
         <v-card-actions class="pb-3 px-3">
           <v-spacer></v-spacer>          
@@ -64,13 +67,7 @@
 
     <div class="elevation-1">
       <v-toolbar flat color="white">
-        <v-text-field
-          v-model="search"
-          append-icon="search"
-          label="Buscar"
-          single-line
-          hide-details
-        ></v-text-field>
+        <export :fields="excelFields" :data="items" :nameExport="'Buses'" :pdf="true"/>
         <v-spacer></v-spacer>
         <div class="text-xs-right">
           <v-btn color="primary" @click="dialog = true"> <v-icon light>add</v-icon> Agregar Bus</v-btn>
@@ -80,7 +77,7 @@
       <v-data-table
           :headers="headers"
           :items="buses"
-          :search="search"
+          :loading="loading"
           hide-actions
           no-data-text="No hay buses registrados"
         >
@@ -122,14 +119,13 @@
 
 <script>
   import API from '../services/api/app.js'
-  // import Tabla from '../components/Tabla'
+  import Export from '../components/Exporta'
 
   export default {
     data () {
       return {
         confirmaAnular: false,
         dialog: false,
-        search: '',
         editedItem: {
           patente: '',
           marca: ''
@@ -145,14 +141,27 @@
         buses: [],
         choferes: [],
         valid: true,
+        loading: true,
         rules: {
           required: v => !!v || 'Campo requerido'
-        }
+        },
+        asientos: [],
+        pasajeros: [],
+        excelFields: {
+          Patente: 'patente',
+          Marca: 'marca',
+          Chofer: 'id_chofer'
+        },
+        items: []
       }
     },
     mounted () {
       this.getbuses()
       this.getChoferes()
+      this.getPasajeros()
+    },
+    components: {
+      Export
     },
     methods: {
       findChoferName: function (data) {
@@ -168,6 +177,19 @@
               this.buses = cars.data
               this.loading = false
             }, 500)
+            this.items = this.buses.map(item => {
+              for (const prop in item) {
+                // if (prop == 'id_chofer') {
+                //   this.choferes.find(item => {
+                //     if(item.id === data){
+                //       return item.chofer = item.nombre
+                //     }
+                //   })
+                // }
+                if (Number.isInteger(item[prop])) item[prop] = item[prop].toString()
+              }
+              return item
+            })
           }
         } catch (e) {
           console.log('catch err', e)
@@ -179,6 +201,17 @@
           if (drivers.status >= 200 && drivers.status < 300) {
             console.log('choferes en buses', drivers)
             this.choferes = drivers.data
+          }
+        } catch (e) {
+          console.log('catch err', e)
+        }
+      },
+      async getPasajeros () {
+        try {
+          let response = await API.selectAll('pasajero')
+          if (response.status >= 200 && response.status < 300) {
+            console.log('choferes en buses', response)
+            this.pasajeros = response.data
           }
         } catch (e) {
           console.log('catch err', e)
@@ -259,7 +292,19 @@
       },
       editItem (item) {
         this.editedItem = item
+        this.getAsientos(item.id)
         this.dialog = true
+      },
+      async getAsientos (busid) {
+        try {
+          let response = await API.selectAll('asiento')
+          if (response.status >= 200 && response.status < 300) {
+            console.log('choferes en buses', response)
+            this.asientos = response.data.filter(item => item.id_bus === busid)
+          }
+        } catch (e) {
+          console.log('catch err', e)
+        }
       },
       goDelete (itemid) {
         this.elimina = itemid
@@ -301,8 +346,13 @@
       },
       close () {
         this.dialog = false
+        this.asientos= []
         this.editedItem = {}
-      }
+      },
+      getPasajeroNombre: function (data) {
+        const pasajero = this.pasajeros.find(item => item.id === data)
+        return pasajero ? pasajero.nombre : ''
+      },
     }
   }
 </script>

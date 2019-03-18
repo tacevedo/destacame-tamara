@@ -2,8 +2,8 @@
   <v-navigation-drawer
     clipped
     :value="drawer"
-    fixed
-    stateless permanent
+    fixed 
+    permanent
     app
     :width="260"
     id="sidebar"
