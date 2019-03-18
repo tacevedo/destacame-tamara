@@ -151,7 +151,7 @@
       this.getChoferes()
     },
     methods: {
-       findChoferName: function (data) {
+      findChoferName: function (data) {
         const chofer = this.choferes.find(item => item.id === data)
         return chofer ? chofer.nombre : ''
       },

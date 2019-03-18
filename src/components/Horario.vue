@@ -16,7 +16,6 @@
             full-width
             max-width="290px"
             min-width="290px"
-            :disabled="isDisabled"
           >
             <template v-slot:activator="{ on }">
               <v-text-field
@@ -26,7 +25,6 @@
                 outline
                 v-on="on"
                 class="pickersHorario"
-                :disabled="isDisabled"
               ></v-text-field>
             </template>
             <v-date-picker 
@@ -48,7 +46,6 @@
             full-width
             max-width="290px"
             min-width="290px"
-            :disabled="isDisabled"
             class="pickersHorario"
           >
             <v-text-field
@@ -57,7 +54,6 @@
               label="Hora"
               outline
               readonly
-              :disabled="isDisabled"
             ></v-text-field>
             <v-time-picker
               v-if="timepicker"
@@ -78,18 +74,17 @@
             item-text="patente"
             item-value="id"
             class="white--text"
-            :disabled="isDisabled"
           >
           </v-autocomplete>
         </v-flex>
         <v-flex xs12 md3>
-          <v-btn flat small color="primary" @click="save(horario)">
-            <span v-if="!horario.id">Guardar</span>
-            <span v-else>Editar</span>
+          <v-btn outline small color="secondary" @click="save(horario)">
+            <v-icon>add</v-icon>
+            Guardar
           </v-btn>
-          <v-btn flat small color="primary" @click="deleteItem(horario)">
+          <!-- <v-btn flat small color="primary" @click="$emit('deleteHorario', horario)">
             <span>Eliminar</span>
-          </v-btn>
+          </v-btn> -->
         </v-flex>
       </v-layout>
   </v-form>
@@ -98,6 +93,8 @@
 <script>
   import API from '../services/api/app.js'
   import moment from 'moment'
+  import {mapGetters} from 'vuex'
+  
   export default {
     props: ['id_trayecto', 'id_bus', 'fecha', 'hora', 'horarioid'],
     data () {
@@ -120,12 +117,15 @@
       this.horario.id_trayecto = this.id_trayecto
       this.horario.id_bus = this.id_bus
       this.horario.hora = this.hora
-      this.horario.fecha = moment(this.fecha, 'MM/DD/YYYY').toISOString().substr(0, 10)
+      this.horario.fecha = this.fecha? moment(this.fecha, 'MM/DD/YYYY').toISOString().substr(0, 10) : moment().toISOString().substr(0, 10)
       this.horario.id = this.horarioid
-      this.getHorarios()
+      console.log('trayectoid', this.horario.id_trayecto)
       this.getbuses()
     },
     computed: {
+      ...mapGetters({
+        trayectoid: ['HorariosTrayecto/trayectoId']
+      }),
       isDisabled: function () {
         return this.horario.id ? true : false
       },
@@ -169,14 +169,25 @@
         }
       },
       async save (guardar) {
+        guardar.id_trayecto =  this.trayectoid
         console.log('a guardar', guardar)
         if (this.$refs.form.validate()) {
           let id = guardar.id
+          
           if (id) {
             try {
               let puthorario = await API.update('horario', id, guardar)
               if (puthorario.status >= 200 && puthorario.status < 300) {
-                this.getHorarios()
+                // this.getHorarios()
+
+                this.$store.dispatch('HorariosTrayecto/getHorarios', {trayectoId: this.trayectoid})
+                this.horario= {
+                            id_trayecto: '',
+                            id_bus: '',
+                            hora: '',
+                            fecha: '',
+                            id: ''
+                          }
                 this.dialog = false
                 this.$swal({
                   type: 'success',
@@ -209,6 +220,14 @@
               if (posthorario.status >= 200 && posthorario.status < 300) {
                 console.log('result post horario', posthorario)
                 this.getHorarios()
+                this.$store.dispatch('HorariosTrayecto/getHorarios', {trayectoId: this.horario.id_trayecto})
+                this.horario= {
+                              id_trayecto: '',
+                              id_bus: '',
+                              hora: '',
+                              fecha: '',
+                              id: ''
+                            }
                 this.dialog = false
                 this.$swal({
                   type: 'success',
@@ -235,39 +254,6 @@
               })
             }
           }
-        }
-      },
-      async deleteItem (horario) {
-        try {
-          let eliminando = await API.delete('horario', horario.id)
-          if (eliminando.status >= 200 && eliminando.status < 300) {
-            console.log('ya hizo DELETE horario', eliminando)
-            this.getHorarios()
-            this.confirmaAnular = false
-            this.$swal({
-              type: 'success',
-              customClass: 'modal-info',
-              timer: 2000,
-              title: 'Horario',
-              text: 'Horario eliminado exitosamente!',
-              animation: true,
-              showConfirmButton: false,
-              showCloseButton: false
-            })
-          }
-        } catch (e) {
-          console.log('catch err', e.response)
-          this.confirmaAnular = false
-          this.$swal({
-            type: 'error',
-            customClass: 'modal-info',
-            timer: 2000,
-            title: 'Ha ocurrido un error',
-            text: 'Ha ocurrido un error eliminando el horario, intente más tarde.',
-            animation: true,
-            showConfirmButton: false,
-            showCloseButton: false
-          })
         }
       },
       close () {

@@ -4,10 +4,13 @@ import VueRouter from 'vue-router'
 import router from './router'
 import Vuetify from 'vuetify'
 import VueSweetalert2 from 'vue-sweetalert2'
+import Vuex from 'vuex'
+import store from './store'
 import 'vuetify/dist/vuetify.min.css'
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
 Vue.use(VueRouter)
+Vue.use(Vuex)
 Vue.use(VueSweetalert2)
 Vue.use(Vuetify, {
   theme: {
@@ -20,9 +23,11 @@ Vue.use(Vuetify, {
     warning: '#ffbb33'
   }
 })
+
 Vue.config.productionTip = false
 
 new Vue({
   render: h => h(App),
-  router
+  router,
+  store
 }).$mount('#app')

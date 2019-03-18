@@ -58,29 +58,37 @@
           <v-container fluid class="pt-0">
             <v-layout wrap>
               <v-flex xs12 class="pb-3 text-xs-left">
-                <h4>Trayecto desde {{horarioItem.ida}} hacia
+                <h4 class="title">Trayecto desde {{horarioItem.ida}} hacia
                   {{horarioItem.vuelta}}, Terminal
                   {{horarioItem.terminal}}
                 </h4>
               </v-flex>
             </v-layout>
             <v-layout wrap align-center>
-              <v-flex xs12 class="text-xs-right">
-                <v-btn @click="agregarHorario(horarioItem.id)" color="secondary"><v-icon>add</v-icon>Agregar Horario y Bus</v-btn>
+              <v-flex xs12>
+                <horario :id_trayecto="nuevohorario.id_trayecto"
+                          :id_bus="nuevohorario.id_bus"
+                          :fecha="nuevohorario.fecha"
+                          :hora="nuevohorario.hora"
+                          :horarioid="nuevohorario.id"
+                          @deleteHorario="deleteHorario"
+                          />
               </v-flex>
-              <v-flex xs12 v-for="(horario, i) in horariosTrayecto" v-bind:key="i">
-                <horario :id_trayecto="horario.id_trayecto"
-                          :id_bus="horario.id_bus"
-                          :fecha="horario.fecha"
-                          :hora="horario.hora"
-                          :horarioid="horario.id"/>
+              <v-flex xs12 v-for="(horario) in horariosTrayecto" v-bind:key="horario.id" class="text-xs-left">
+                    <v-chip
+                      close
+                      color="primary"
+                      outline
+                      class="subheading"
+                      @input="deleteHorario(horario)"
+                    >Fecha: <strong>{{horario.fecha}}</strong> - Hora: <strong>{{horario.hora}}</strong> - Patente bus: <strong>{{ getBusPatente(horario.id_bus) }}</strong></v-chip>
               </v-flex>
             </v-layout>
           </v-container>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary darken-1" outline @click.native="closeHorarios()">Cerrar</v-btn>
+          <v-btn color="primary darken-1" @click.native="closeHorarios()">Cerrar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -159,6 +167,7 @@
   import API from '../services/api/app.js'
   import Horario from '../components/Horario'
   import moment from 'moment'
+  import {mapGetters} from 'vuex'
   
   export default {
     name: 'Trayectos',
@@ -191,17 +200,36 @@
         elimina: '',
         horarioItem: {},
         dialogHorario: false,
-        horariosTrayecto: []
+        horariosTrayecto: [],
+        nuevohorario: {},
+        buses: []
       }
     },
     mounted () {
       this.getTrayectos()
+      this.getBuses()
     },
     components: {
       Horario
     },
+    computed: {
+      ...mapGetters({
+        horariosTrayectoStore: ['HorariosTrayecto/horariosTrayecto'],
+        trayectoid: ['HorariosTrayecto/trayectoId']
+      })
+    },
+    watch: {
+      horariosTrayectoStore (val) {
+        console.log('cambio', val)
+        this.horariosTrayecto = val
+      }
+    },
     methods: {
-       async getTrayectos () {
+      getBusPatente: function (data) {
+        const bus = this.buses.find(item => item.id === data)
+        return bus ? bus.patente : ''
+      },
+      async getTrayectos () {
         try {
           let respuesta = await API.selectAll('trayecto')
           if (respuesta.status >= 200 && respuesta.status < 300) {
@@ -210,6 +238,17 @@
               this.trayectos = respuesta.data
               this.loading = false
             }, 500)
+          }
+        } catch (e) {
+          // console.log('catch err', e)
+        }
+      },
+      async getBuses () {
+        try {
+          let respuesta = await API.selectAll('bus')
+          if (respuesta.status >= 200 && respuesta.status < 300) {
+            // console.log('buses', respuesta)
+            this.buses = respuesta.data
           }
         } catch (e) {
           // console.log('catch err', e)
@@ -290,20 +329,9 @@
       },
       verHorarios (trayecto) {
         this.horarioItem = trayecto
-        this.getHorarios(trayecto.id)
+        // this.getHorarios(trayecto.id)
+        this.$store.dispatch('HorariosTrayecto/getHorarios', {trayectoId: trayecto.id})
         this.dialogHorario = true
-      },
-      async getHorarios (idTrayecto) {
-        try {
-          let respuesta = await API.selectAll('horario')
-          if (respuesta.status >= 200 && respuesta.status < 300) {
-            console.log('response horarios', respuesta, 'tray', idTrayecto)
-            this.horariosTrayecto = respuesta.data.filter(item => item.id_trayecto === idTrayecto)
-            console.log('horariosTrayecto', this.horariosTrayecto)
-          }
-        } catch (e) {
-          // console.log('catch err', e)
-        }
       },
       editItem (item) {
         console.log('edit', item)
@@ -348,6 +376,37 @@
           })
         }
       },
+      async deleteHorario (horario) {
+        try {
+          let eliminando = await API.delete('horario', horario.id)
+          if (eliminando.status >= 200 && eliminando.status < 300) {
+            console.log('ya hizo DELETE horario', eliminando, this.trayectoid)
+            this.$store.dispatch('HorariosTrayecto/getHorarios', {trayectoId: this.trayectoid})
+            this.$swal({
+              type: 'success',
+              customClass: 'modal-info',
+              timer: 2000,
+              title: 'Horario',
+              text: 'Horario eliminado exitosamente!',
+              animation: true,
+              showConfirmButton: false,
+              showCloseButton: false
+            })
+          }
+        } catch (e) {
+          console.log('catch err', e.response)
+          this.$swal({
+            type: 'error',
+            customClass: 'modal-info',
+            timer: 2000,
+            title: 'Ha ocurrido un error',
+            text: 'Ha ocurrido un error eliminando el horario, intente más tarde.',
+            animation: true,
+            showConfirmButton: false,
+            showCloseButton: false
+          })
+        }
+      },
       close () {
         this.dialog = false
         this.editedItem = {}
@@ -358,7 +417,7 @@
         this.horarioItem = {}
       },
       agregarHorario(trayectoid) {
-        this.horariosTrayecto.push({fecha: '', hora: '', id_bus: '', id_trayecto: trayectoid})
+        this.nuevohorario.push({fecha: '', hora: '', id_bus: '', id_trayecto: trayectoid})
       },
       deleteRow(index) {
         this.inputs.splice(index,1)
