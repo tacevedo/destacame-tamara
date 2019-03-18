@@ -9,9 +9,11 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "jspdf": "^1.5.3",
     "material-design-icons-iconfont": "^4.0.5",
     "moment": "^2.24.0",
     "vue": "^2.6.6",
+    "vue-json-excel": "^0.2.98",
     "vue-router": "^3.0.2",
     "vue-sweetalert2": "^1.6.4",
     "vuetify": "^1.5.6",

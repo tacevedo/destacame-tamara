@@ -5,6 +5,7 @@ import Vue from 'vue'
 // import all storage modules
 import HorariosTrayecto from './modules/HorariosTrayecto'
 import AsignarPasajero from './modules/AsignarPasajero'
+import General from './modules/General'
 
 Vue.use(Vuex)
 Vue.config.devtools = true
@@ -13,6 +14,7 @@ export default new Vuex.Store({
   // plugins: [createPersistedState()],
   modules: {
     HorariosTrayecto: HorariosTrayecto,
-    AsignarPasajero: AsignarPasajero
+    AsignarPasajero: AsignarPasajero,
+    General: General
   }
 })

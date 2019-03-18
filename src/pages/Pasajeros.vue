@@ -39,25 +39,22 @@
     <!-- dialogo confirmar eliminar -->
     <v-dialog v-model="confirmaAnular" persistent max-width="450">
       <v-card>
-        <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el pasajero?</v-card-title>
+         <v-card-title primary-title class="secondary--text">
+            <h3 class="headline title-modal title-modal">¿Esta seguro de eliminar el pasajero?</h3>
+        </v-card-title>
+        <!-- <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el pasajero?</v-card-title> -->
         <v-card-text>Una vez realizada esta acción no podrá recuperar los datos.</v-card-text>
         <v-card-actions class="pb-3 px-3">
           <v-spacer></v-spacer>          
           <v-btn color="primary" outline @click.native="confirmaAnular = false">Volver</v-btn>
-          <v-btn color="primary" @click="deleteItem(eliminaid)">Eliminar</v-btn>
+          <v-btn color="primary" @click="deleteItem()">Eliminar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <div class="elevation-1">
       <v-toolbar flat color="white">
-        <v-text-field
-          v-model="search"
-          append-icon="search"
-          label="Buscar"
-          single-line
-          hide-details
-        ></v-text-field>
+        <export :fields="excelFields" :data="pasajeros" :nameExport="'Pasajeros'" :pdf="true"/>
         <v-spacer></v-spacer>
         <div class="text-xs-right">
           <v-btn color="primary" @click="dialog = true"> <v-icon light>add</v-icon> Agregar pasajero</v-btn>
@@ -65,10 +62,12 @@
       </v-toolbar>
 
       <v-data-table
+          class="hidden-sm-and-down"
           :headers="headers"
           :items="pasajeros"
-          :search="search"
-          hide-actions
+          :loading="loading"
+          :pagination.sync="pagination"
+          rows-per-page-text="Filas por página"
           no-data-text="No hay pasajeros registrados"
         >
         <template slot="items" slot-scope="props">
@@ -103,19 +102,43 @@
           </td>
         </template>
       </v-data-table>
+
+      <div v-for="pasajero in pasajeros" :key="pasajero.id" class="hidden-md-and-up my-2">
+        <v-card>
+          <v-card-title primary-title>
+            <div class="text-xs-left">
+              <p>Nombre: <strong>{{pasajero.nombre}}</strong></p>
+              <p>Apellido: <strong>{{pasajero.apellido}}</strong></p>
+              <p>Rut: <strong>{{pasajero.rut}}</strong></p>
+            </div>
+          </v-card-title>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            
+            
+            <v-btn outline color="primary" @click="editItem(pasajero)">
+              <v-icon small>edit</v-icon>
+              Editar
+            </v-btn>
+
+            <v-btn outline color="primary" @click="goDelete(pasajero.id)">
+              <v-icon small>delete</v-icon>
+              Eliminar
+            </v-btn>
+            
+          </v-card-actions>
+        </v-card>
+      </div>
     </div>
-        <!-- Modal error-->
-    <modal v-if="showModal"
-        @close="showModal = false"
-        v-bind:btn1="modalInfoBtn1">
-        <p slot="title" class="headline mb-0">{{modalInfoTitle}}</p>
-        <h3 slot="body">{{modalInfoDetail}}</h3>
-    </modal>
+     
   </div>
 </template>
 
 <script>
   import API from '../services/api/app.js'
+  import Export from '../components/Exporta'
+  import {mapGetters} from 'vuex'
 
   export default {
     name: 'Pasajeros',
@@ -123,12 +146,7 @@
       return {
         confirmaAnular: false,
         dialog: false,
-        search: '',
-        loading: true,
-        showModal: false,
-        modalInfoTitle: '',
-        modalInfoDetail: '',
-        modalInfoBtn1: '',
+        loading: false,
         editedItem: {
           nombre: '',
           apellido: '',
@@ -141,41 +159,59 @@
           {text: '', value: 'edit', sortable: false},
           {text: '', value: 'delete', sortable: false}
         ],
-        pasajeros: [],
+        // pasajeros: [],
         valid: true,
         rules: {
           required: v => !!v || 'Campo requerido'
         },
-        elimina: ''
+        elimina: '',
+        excelFields: {
+          Nombre: 'nombre',
+          Apellido: 'apellido',
+          Rut: 'rut'
+        },
+        pagination: {
+          rowsPerPage: 10, // -1 for All
+          sortBy: 'nombre'
+        }
       }
     },
    mounted () {
-      this.getPasajeros()
+      // this.getPasajeros()
+      this.$store.dispatch('General/get_pasajeros')
+    },
+    components: {
+      Export
+    },
+    computed: {
+      ...mapGetters({
+        pasajeros: ['General/pasajeros'],
+      })
     },
     methods: {
-       async getPasajeros () {
-        try {
-          let respuesta = await API.selectAll('pasajero')
-          if (respuesta.status >= 200 && respuesta.status < 300) {
-            console.log('buses', respuesta)
-            setTimeout(() => {
-              this.pasajeros = respuesta.data
-              this.loading = false
-            }, 500)
-          }
-        } catch (e) {
-          console.log('catch err', e)
-        }
-      },
+      //  async getPasajeros () {
+      //   try {
+      //     let respuesta = await API.selectAll('pasajero')
+      //     if (respuesta.status >= 200 && respuesta.status < 300) {
+      //       console.log('buses', respuesta)
+      //       setTimeout(() => {
+      //         this.pasajeros = respuesta.data
+      //         this.loading = false
+      //       }, 500)
+      //     }
+      //   } catch (e) {
+      //     console.log('catch err', e)
+      //   }
+      // },
       async save (guardar) {
-        console.log('a guardar', guardar)
         if (this.$refs.form.validate()) {
           let id = guardar.id
           if (id) {
             try {
               let putPasajero = await API.update('pasajero', id, guardar)
               if (putPasajero.status >= 200 && putPasajero.status < 300) {
-                this.getPasajeros()
+                // this.getPasajeros()
+                this.$store.dispatch('General/get_pasajeros')
                 this.dialog = false
                 this.$swal({
                   type: 'success',
@@ -208,9 +244,9 @@
             try {
               let postPasajero = await API.insert('pasajero', guardar)
               if (postPasajero.status >= 200 && postPasajero.status < 300) {
-                console.log('result post pasajero', postPasajero)
                 this.editedItem = Object.assign({}, '')
-                this.getPasajeros()
+                // this.getPasajeros()
+                this.$store.dispatch('General/get_pasajeros')
                 this.dialog = false
                 this.$swal({
                   type: 'success',
@@ -252,8 +288,9 @@
         try {
           let eliminando = await API.delete('pasajero', this.elimina)
           if (eliminando.status >= 200 && eliminando.status < 300) {
-            console.log('ya hizo DELETE pasajero', eliminando)
-            this.getPasajeros()
+            // console.log('ya hizo DELETE pasajero', eliminando)
+            // this.getPasajeros()
+            this.$store.dispatch('General/get_pasajeros')
             this.confirmaAnular = false
             this.$swal({
               type: 'success',

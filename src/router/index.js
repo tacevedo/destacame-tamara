@@ -15,27 +15,27 @@ const router = new Router({
     {
       path: '/',
       name: 'Home',
-      component: Home,
+      component: Home
     },
     {
       path: '/trayectos',
       name: 'Trayectos',
-      component: Trayectos,
+      component: Trayectos
     },
     {
       path: '/buses',
       name: 'Buses',
-      component: Buses,
+      component: Buses
     },
     {
       path: '/choferes',
       name: 'Choferes',
-      component: Choferes,
+      component: Choferes
     },
     {
       path: '/pasajeros',
       name: 'Pasajeros',
-      component: Pasajeros,
+      component: Pasajeros
     }
   ]
 })

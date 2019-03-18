@@ -2,7 +2,7 @@
   <div class="pa-3">
     <h2 class="py-3 secondary--text">Trayectos</h2>
     
-    <v-dialog v-model="dialog" persistent max-width="90%" style="text-align: right">
+    <v-dialog v-model="dialog" max-width="900px">
       <v-card>
         <v-card-title primary-title class="secondary--text">
             <h3 class="headline title-modal">Trayecto</h3>
@@ -21,7 +21,7 @@
                 <v-flex xs12 md6 lg4>
                   <v-text-field label="Vuelta" outline v-model="editedItem.vuelta" :rules="[rules.required]" required></v-text-field>
                 </v-flex>
-                <v-flex xs12 sm6 lg4>
+                <v-flex xs12 md6 lg4>
                   <v-text-field label="Terminal" outline v-model="editedItem.terminal" :rules="[rules.required]" required></v-text-field>
                 </v-flex>
               </v-layout>
@@ -39,20 +39,23 @@
     <!-- dialogo confirmar eliminar -->
     <v-dialog v-model="confirmaAnular" persistent max-width="450">
       <v-card>
-        <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el trayecto?</v-card-title>
+         <v-card-title primary-title class="secondary--text">
+            <h3 class="headline title-modal">¿Esta seguro de eliminar el trayecto?</h3>
+        </v-card-title>
+        <!-- <v-card-title class="headline primary white--text">¿Esta seguro de eliminar el trayecto?</v-card-title> -->
         <v-card-text>Una vez realizada esta acción no podrá recuperar los datos.</v-card-text>
         <v-card-actions class="pb-3 px-3">
           <v-spacer></v-spacer>          
           <v-btn color="primary" outline @click.native="confirmaAnular = false">Volver</v-btn>
-          <v-btn color="primary" @click="deleteItem(eliminaid)">Eliminar</v-btn>
+          <v-btn color="primary" @click="deleteItem()">Eliminar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="dialogHorario" persistent max-width="90%" style="text-align: right">
+    <v-dialog v-model="dialogHorario" max-width="900px">
       <v-card>
         <v-card-title primary-title class="secondary--text">
-            <h3 class="headline">Horarios Trayecto</h3>
+            <h3 class="headline title-modal">Horarios Trayecto</h3>
         </v-card-title>
         <v-card-text>
           <v-container fluid class="pt-0">
@@ -65,23 +68,29 @@
               </v-flex>
             </v-layout>
             <v-layout wrap align-center>
-              <v-flex xs12>
+              <v-flex xs12 class="pb-2">
                 <horario :id_trayecto="nuevohorario.id_trayecto"
                           :id_bus="nuevohorario.id_bus"
                           :fecha="nuevohorario.fecha"
                           :hora="nuevohorario.hora"
                           :horarioid="nuevohorario.id"
-                          @deleteHorario="deleteHorario"
                           />
               </v-flex>
               <v-flex xs12 v-for="(horario) in horariosTrayecto" v-bind:key="horario.id" class="text-xs-left">
-                    <v-chip
+                  <v-chip
                       close
                       color="primary"
                       outline
-                      class="subheading"
+                      class="subheading hidden-sm-and-down"
                       @input="deleteHorario(horario)"
                     >Fecha: <strong>{{horario.fecha}}</strong> - Hora: <strong>{{horario.hora}}</strong> - Patente bus: <strong>{{ getBusPatente(horario.id_bus) }}</strong></v-chip>
+                 <v-chip
+                      close
+                      color="primary"
+                      outline
+                      class="hidden-md-and-up"
+                      @input="deleteHorario(horario)"
+                    ><strong>{{horario.fecha}}</strong> - <strong>{{horario.hora}}</strong> - <strong>{{ getBusPatente(horario.id_bus) }}</strong></v-chip>
               </v-flex>
             </v-layout>
           </v-container>
@@ -94,13 +103,7 @@
     </v-dialog>
     <div class="elevation-1">
       <v-toolbar flat color="white">
-        <v-text-field
-          v-model="search"
-          append-icon="search"
-          label="Buscar"
-          single-line
-          hide-details
-        ></v-text-field>
+        <export :fields="excelFields" :data="items" :nameExport="'Pasajeros'" :pdf="true"/>
         <v-spacer></v-spacer>
         <div class="text-xs-right">
           <v-btn color="primary" @click="dialog = true"> <v-icon light>add</v-icon> Agregar trayecto</v-btn>
@@ -108,10 +111,13 @@
       </v-toolbar>
 
       <v-data-table
+          class="hidden-sm-and-down"
           :headers="headers"
           :items="trayectos"
-          :search="search"
-          hide-actions
+          :loading="loading"
+          :pagination.sync="pagination"
+          rows-per-page-text="Filas por página"
+          :rows-per-page-items="[15, 30, 50]"
           no-data-text="No hay trayectos registrados"
         >
         <template slot="items" slot-scope="props">
@@ -152,14 +158,40 @@
           </td>
         </template>
       </v-data-table>
+
+      <div v-for="trayecto in trayectos" :key="trayecto.id" class="hidden-md-and-up my-2">
+        <v-card>
+          <v-card-title primary-title>
+            <div class="text-xs-left">
+              <p>Ida: <strong>{{trayecto.ida}}</strong></p>
+              <p>Vuelta: <strong>{{trayecto.vuelta}}</strong></p>
+              <p>Terminal: <strong>{{trayecto.terminal}}</strong></p>
+            </div>
+          </v-card-title>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn flat small
+                slot="activator"
+                color="primary"
+                @click="verHorarios(trayecto)"
+              >Ver horarios horarios</v-btn>
+            
+            <v-btn outline color="primary" @click="editItem(trayecto)">
+              <v-icon small>edit</v-icon>
+              Editar
+            </v-btn>
+
+            <v-btn outline color="primary" @click="goDelete(trayecto.id)">
+              <v-icon small>delete</v-icon>
+              Eliminar
+            </v-btn>
+            
+          </v-card-actions>
+        </v-card>
+      </div>
     </div>
-        <!-- Modal error-->
-    <modal v-if="showModal"
-        @close="showModal = false"
-        v-bind:btn1="modalInfoBtn1">
-        <p slot="title" class="headline mb-0">{{modalInfoTitle}}</p>
-        <h3 slot="body">{{modalInfoDetail}}</h3>
-    </modal>
+      
   </div>
 </template>
 
@@ -168,19 +200,15 @@
   import Horario from '../components/Horario'
   import moment from 'moment'
   import {mapGetters} from 'vuex'
-  
+  import Export from '../components/Exporta'
+
   export default {
     name: 'Trayectos',
     data () {
       return {
         confirmaAnular: false,
         dialog: false,
-        search: '',
         loading: true,
-        showModal: false,
-        modalInfoTitle: '',
-        modalInfoDetail: '',
-        modalInfoBtn1: '',
         editedItem: {
           ida: '',
           vuelta: '',
@@ -205,7 +233,17 @@
         dialogHorario: false,
         horariosTrayecto: [],
         nuevohorario: {},
-        buses: []
+        buses: [],
+        pagination: {
+          rowsPerPage: 15, // -1 for All
+          sortBy: 'ida'
+        },
+        excelFields: {
+          Ida: 'ida',
+          Vuelta: 'vuelta',
+          Terminal: 'terminal'
+        },
+        items: []
       }
     },
     mounted () {
@@ -213,7 +251,8 @@
       this.getBuses()
     },
     components: {
-      Horario
+      Horario,
+      Export
     },
     computed: {
       ...mapGetters({
@@ -223,7 +262,7 @@
     },
     watch: {
       horariosTrayectoStore (val) {
-        console.log('cambio', val)
+        // console.log('cambio', val)
         this.horariosTrayecto = val
       }
     },
@@ -240,6 +279,14 @@
             setTimeout(() => {
               this.trayectos = respuesta.data
               this.loading = false
+              this.items = this.trayectos.map(trayecto => {
+                const item = {...trayecto}
+                for (const prop in item) {
+                  if (item[prop] == null) item[prop] = ''
+                  if (Number.isInteger(item[prop])) item[prop] = item[prop].toString()
+                }
+                return item
+              })
             }, 500)
           }
         } catch (e) {
@@ -280,7 +327,7 @@
                 this.editedItem = Object.assign({}, '')
               }
             } catch (e) {
-              // console.log('catch err', e.response)
+              console.log('catch err', e.response)
               this.editedItem = Object.assign({}, '')
               this.dialog = false
               this.$swal({
@@ -314,7 +361,7 @@
                 })
               }
             } catch (e) {
-              // console.log('catch err', e.response)
+              console.log('catch err', e.response)
               this.editedItem = Object.assign({}, '')
               this.dialog = false
               this.$swal({
