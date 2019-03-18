@@ -62,6 +62,7 @@
       </v-toolbar>
 
       <v-data-table
+          class="hidden-sm-and-down"
           :headers="headers"
           :items="pasajeros"
           :loading="loading"
@@ -100,6 +101,34 @@
           </td>
         </template>
       </v-data-table>
+
+      <div v-for="pasajero in pasajeros" :key="pasajero.id" class="hidden-md-and-up my-2">
+        <v-card>
+          <v-card-title primary-title>
+            <div class="text-xs-left">
+              <p>Nombre: <strong>{{pasajero.nombre}}</strong></p>
+              <p>Apellido: <strong>{{pasajero.apellido}}</strong></p>
+              <p>Rut: <strong>{{pasajero.rut}}</strong></p>
+            </div>
+          </v-card-title>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            
+            
+            <v-btn outline color="primary" @click="editItem(pasajero)">
+              <v-icon small>edit</v-icon>
+              Editar
+            </v-btn>
+
+            <v-btn outline color="primary" @click="goDelete(pasajero.id)">
+              <v-icon small>delete</v-icon>
+              Eliminar
+            </v-btn>
+            
+          </v-card-actions>
+        </v-card>
+      </div>
     </div>
         <!-- Modal error-->
     <modal v-if="showModal"

@@ -175,12 +175,12 @@
                 @click="verHorarios(trayecto)"
               >Ver horarios horarios</v-btn>
             
-            <v-btn flat color="primary" @click="editItem(trayecto)">
+            <v-btn outline color="primary" @click="editItem(trayecto)">
               <v-icon small>edit</v-icon>
               Editar
             </v-btn>
 
-            <v-btn flat color="primary" @click="goDelete(trayecto.id)">
+            <v-btn outline color="primary" @click="goDelete(trayecto.id)">
               <v-icon small>delete</v-icon>
               Eliminar
             </v-btn>

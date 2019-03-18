@@ -68,6 +68,7 @@
           :items="choferes"
           :loading="loading"
           :pagination.sync="pagination"
+          class="hidden-sm-and-down"
           no-data-text="No hay choferes registrados"
         >
         <template slot="items" slot-scope="props">
@@ -102,14 +103,36 @@
           </td>
         </template>
       </v-data-table>
+
+      <div v-for="chofer in choferes" :key="chofer.id" class="hidden-md-and-up my-2">
+        <v-card>
+          <v-card-title primary-title>
+            <div class="text-xs-left">
+              <p>Nombre: <strong>{{chofer.nombre}}</strong></p>
+              <p>Apellido: <strong>{{chofer.apellido}}</strong></p>
+              <p>Rut: <strong>{{chofer.rut}}</strong></p>
+            </div>
+          </v-card-title>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            
+            
+            <v-btn outline color="primary" @click="editItem(chofer)">
+              <v-icon small>edit</v-icon>
+              Editar
+            </v-btn>
+
+            <v-btn outline color="primary" @click="goDelete(chofer.id)">
+              <v-icon small>delete</v-icon>
+              Eliminar
+            </v-btn>
+            
+          </v-card-actions>
+        </v-card>
+      </div>
     </div>
-        <!-- Modal error-->
-    <modal v-if="showModal"
-        @close="showModal = false"
-        v-bind:btn1="modalInfoBtn1">
-        <p slot="title" class="headline mb-0">{{modalInfoTitle}}</p>
-        <h3 slot="body">{{modalInfoDetail}}</h3>
-    </modal>
+     
   </div>
 </template>
 
@@ -124,7 +147,6 @@
         confirmaAnular: false,
         dialog: false,
         loading: true,
-        showModal: false,
         modalInfoTitle: '',
         modalInfoDetail: '',
         modalInfoBtn1: '',

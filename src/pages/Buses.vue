@@ -79,6 +79,7 @@
           :items="buses"
           :loading="loading"
           :pagination.sync="pagination"
+          class="hidden-sm-and-down"
           no-data-text="No hay buses registrados"
         >
         <template slot="items" slot-scope="props">
@@ -113,6 +114,34 @@
           </td>
         </template>
       </v-data-table>
+
+      <div v-for="bus in buses" :key="bus.id" class="hidden-md-and-up my-2">
+        <v-card>
+          <v-card-title primary-title>
+            <div class="text-xs-left">
+              <p>Patente: <strong>{{bus.patente}}</strong></p>
+              <p>Marca: <strong>{{bus.marca}}</strong></p>
+              <p>Chofer: <strong>{{findChoferName(bus.id_chofer) }}</strong></p>
+            </div>
+          </v-card-title>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            
+            
+            <v-btn outline color="primary" @click="editItem(bus)">
+              <v-icon small>edit</v-icon>
+              Editar
+            </v-btn>
+
+            <v-btn outline color="primary" @click="goDelete(bus.id)">
+              <v-icon small>delete</v-icon>
+              Eliminar
+            </v-btn>
+            
+          </v-card-actions>
+        </v-card>
+      </div>
     </div>
   </div>
 </template>
@@ -169,8 +198,9 @@
     },
     methods: {
       findChoferName: function (idchofer) {
-        const chofer = this.choferes.find(item => item.id === idchofer)
-        return chofer ? chofer.nombre : ''
+        console.log(this.choferes, 'choferes')
+        const chofer = this.choferes.find(item => item.id == idchofer)
+        return chofer ? chofer.nombre : idchofer
       },
       async getbuses () {
         try {
