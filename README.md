@@ -1,29 +1,23 @@
 # destacame-tamara
+Para ejecutar esta aplicacion, se debe primero clonar este repositorio de la siguiente forma
 
-## Project setup
+```
+git clone https://github.com/tacevedo/destacame-tamara.git
+```
+luego debe entrar a la carpeta con el repositorio descargado, dentro de ella ejecutar los siguientes comandos: 
+## Para descargar las dependencias del proyecto
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Para correr de manera local la aplicacion
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Deberia abrirse en el navegador la siguiente url
 ```
-npm run build
-```
-
-### Run your tests
-```
-npm run test
+http://localhost:8080/
 ```
 
-### Lints and fixes files
-```
-npm run lint
-```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
