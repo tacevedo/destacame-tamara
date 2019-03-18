@@ -66,9 +66,9 @@
       <v-data-table
           :headers="headers"
           :items="choferes"
-          :loading="loading"
           :pagination.sync="pagination"
           class="hidden-sm-and-down"
+          rows-per-page-text="Filas por página"
           no-data-text="No hay choferes registrados"
         >
         <template slot="items" slot-scope="props">
@@ -139,6 +139,7 @@
 <script>
   import API from '../services/api/app.js'
   import Export from '../components/Exporta'
+  import {mapGetters} from 'vuex'
 
   export default {
     name: 'Choferes',
@@ -147,9 +148,6 @@
         confirmaAnular: false,
         dialog: false,
         loading: true,
-        modalInfoTitle: '',
-        modalInfoDetail: '',
-        modalInfoBtn1: '',
         editedItem: {
           nombre: '',
           apellido: '',
@@ -162,7 +160,7 @@
           {text: '', value: 'edit', sortable: false},
           {text: '', value: 'delete', sortable: false}
         ],
-        choferes: [],
+        // choferes: [],
         valid: true,
         rules: {
           required: v => !!v || 'Campo requerido'
@@ -180,26 +178,32 @@
       }
     },
     mounted () {
-      this.getChoferes()
+      // this.getChoferes()
+      this.$store.dispatch('General/get_choferes')
+    },
+    computed: {
+      ...mapGetters({
+        choferes: ['General/choferes']
+      })
     },
     components: {
       Export
     },
     methods: {
-       async getChoferes () {
-        try {
-          let respuesta = await API.selectAll('chofer')
-          if (respuesta.status >= 200 && respuesta.status < 300) {
-            console.log('buses', respuesta)
-            setTimeout(() => {
-              this.choferes = respuesta.data
-              this.loading = false
-            }, 500)
-          }
-        } catch (e) {
-          console.log('catch err', e)
-        }
-      },
+      //  async getChoferes () {
+      //   try {
+      //     let respuesta = await API.selectAll('chofer')
+      //     if (respuesta.status >= 200 && respuesta.status < 300) {
+      //       console.log('buses', respuesta)
+      //       setTimeout(() => {
+      //         this.choferes = respuesta.data
+      //         this.loading = false
+      //       }, 500)
+      //     }
+      //   } catch (e) {
+      //     console.log('catch err', e)
+      //   }
+      // },
       async save (guardar) {
         console.log('a guardar', guardar)
         if (this.$refs.form.validate()) {
@@ -208,7 +212,8 @@
             try {
               let putChofer = await API.update('chofer', id, guardar)
               if (putChofer.status >= 200 && putChofer.status < 300) {
-                this.getChoferes()
+                // this.getChoferes()
+                this.$store.dispatch('General/get_choferes')
                 this.dialog = false
                 this.$swal({
                   type: 'success',
@@ -243,7 +248,8 @@
               if (postChofer.status >= 200 && postChofer.status < 300) {
                 console.log('result post bus', postChofer)
                 this.editedItem = Object.assign({}, '')
-                this.getChoferes()
+                // this.getChoferes()
+                this.$store.dispatch('General/get_choferes')
                 this.dialog = false
                 this.$swal({
                   type: 'success',
@@ -286,7 +292,8 @@
           let eliminando = await API.delete('chofer', this.elimina)
           if (eliminando.status >= 200 && eliminando.status < 300) {
             console.log('ya hizo DELETE chofer', eliminando)
-            this.getChoferes()
+            // this.getChoferes()
+            this.$store.dispatch('General/get_choferes')
             this.confirmaAnular = false
             this.$swal({
               type: 'success',

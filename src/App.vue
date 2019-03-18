@@ -53,9 +53,5 @@
       no-repeat; 
     background-size:100% 2px ;
   }
-  @media (min-width: 960px){
-    .contenido {
-      /* margin-left: 260px; */
-    } 
-  }
+
 </style>

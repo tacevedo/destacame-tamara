@@ -67,6 +67,7 @@
           :items="pasajeros"
           :loading="loading"
           :pagination.sync="pagination"
+          rows-per-page-text="Filas por página"
           no-data-text="No hay pasajeros registrados"
         >
         <template slot="items" slot-scope="props">
@@ -130,19 +131,14 @@
         </v-card>
       </div>
     </div>
-        <!-- Modal error-->
-    <modal v-if="showModal"
-        @close="showModal = false"
-        v-bind:btn1="modalInfoBtn1">
-        <p slot="title" class="headline mb-0">{{modalInfoTitle}}</p>
-        <h3 slot="body">{{modalInfoDetail}}</h3>
-    </modal>
+     
   </div>
 </template>
 
 <script>
   import API from '../services/api/app.js'
   import Export from '../components/Exporta'
+  import {mapGetters} from 'vuex'
 
   export default {
     name: 'Pasajeros',
@@ -150,11 +146,7 @@
       return {
         confirmaAnular: false,
         dialog: false,
-        loading: true,
-        showModal: false,
-        modalInfoTitle: '',
-        modalInfoDetail: '',
-        modalInfoBtn1: '',
+        loading: false,
         editedItem: {
           nombre: '',
           apellido: '',
@@ -167,7 +159,7 @@
           {text: '', value: 'edit', sortable: false},
           {text: '', value: 'delete', sortable: false}
         ],
-        pasajeros: [],
+        // pasajeros: [],
         valid: true,
         rules: {
           required: v => !!v || 'Campo requerido'
@@ -179,32 +171,38 @@
           Rut: 'rut'
         },
         pagination: {
-                      rowsPerPage: 10, // -1 for All
-                      sortBy: 'nombre'
-                    }
+          rowsPerPage: 10, // -1 for All
+          sortBy: 'nombre'
+        }
       }
     },
    mounted () {
-      this.getPasajeros()
+      // this.getPasajeros()
+      this.$store.dispatch('General/get_pasajeros')
     },
     components: {
       Export
     },
+    computed: {
+      ...mapGetters({
+        pasajeros: ['General/pasajeros'],
+      })
+    },
     methods: {
-       async getPasajeros () {
-        try {
-          let respuesta = await API.selectAll('pasajero')
-          if (respuesta.status >= 200 && respuesta.status < 300) {
-            console.log('buses', respuesta)
-            setTimeout(() => {
-              this.pasajeros = respuesta.data
-              this.loading = false
-            }, 500)
-          }
-        } catch (e) {
-          console.log('catch err', e)
-        }
-      },
+      //  async getPasajeros () {
+      //   try {
+      //     let respuesta = await API.selectAll('pasajero')
+      //     if (respuesta.status >= 200 && respuesta.status < 300) {
+      //       console.log('buses', respuesta)
+      //       setTimeout(() => {
+      //         this.pasajeros = respuesta.data
+      //         this.loading = false
+      //       }, 500)
+      //     }
+      //   } catch (e) {
+      //     console.log('catch err', e)
+      //   }
+      // },
       async save (guardar) {
         console.log('a guardar', guardar)
         if (this.$refs.form.validate()) {
@@ -213,7 +211,8 @@
             try {
               let putPasajero = await API.update('pasajero', id, guardar)
               if (putPasajero.status >= 200 && putPasajero.status < 300) {
-                this.getPasajeros()
+                // this.getPasajeros()
+                this.$store.dispatch('General/get_pasajeros')
                 this.dialog = false
                 this.$swal({
                   type: 'success',
@@ -248,7 +247,8 @@
               if (postPasajero.status >= 200 && postPasajero.status < 300) {
                 console.log('result post pasajero', postPasajero)
                 this.editedItem = Object.assign({}, '')
-                this.getPasajeros()
+                // this.getPasajeros()
+                this.$store.dispatch('General/get_pasajeros')
                 this.dialog = false
                 this.$swal({
                   type: 'success',
@@ -291,7 +291,8 @@
           let eliminando = await API.delete('pasajero', this.elimina)
           if (eliminando.status >= 200 && eliminando.status < 300) {
             console.log('ya hizo DELETE pasajero', eliminando)
-            this.getPasajeros()
+            // this.getPasajeros()
+            this.$store.dispatch('General/get_pasajeros')
             this.confirmaAnular = false
             this.$swal({
               type: 'success',

@@ -104,6 +104,7 @@
     </v-dialog>
     <div class="elevation-1">
       <v-toolbar flat color="white">
+        <export :fields="excelFields" :data="items" :nameExport="'Pasajeros'" :pdf="true"/>
         <v-spacer></v-spacer>
         <div class="text-xs-right">
           <v-btn color="primary" @click="dialog = true"> <v-icon light>add</v-icon> Agregar trayecto</v-btn>
@@ -116,6 +117,8 @@
           :items="trayectos"
           :loading="loading"
           :pagination.sync="pagination"
+          rows-per-page-text="Filas por página"
+          :rows-per-page-items="[15, 30, 50]"
           no-data-text="No hay trayectos registrados"
         >
         <template slot="items" slot-scope="props">
@@ -189,13 +192,7 @@
         </v-card>
       </div>
     </div>
-        <!-- Modal error-->
-    <modal v-if="showModal"
-        @close="showModal = false"
-        v-bind:btn1="modalInfoBtn1">
-        <p slot="title" class="headline mb-0">{{modalInfoTitle}}</p>
-        <h3 slot="body">{{modalInfoDetail}}</h3>
-    </modal>
+      
   </div>
 </template>
 
@@ -204,7 +201,8 @@
   import Horario from '../components/Horario'
   import moment from 'moment'
   import {mapGetters} from 'vuex'
-  
+  import Export from '../components/Exporta'
+
   export default {
     name: 'Trayectos',
     data () {
@@ -212,10 +210,6 @@
         confirmaAnular: false,
         dialog: false,
         loading: true,
-        showModal: false,
-        modalInfoTitle: '',
-        modalInfoDetail: '',
-        modalInfoBtn1: '',
         editedItem: {
           ida: '',
           vuelta: '',
@@ -242,9 +236,15 @@
         nuevohorario: {},
         buses: [],
         pagination: {
-              rowsPerPage: 10, // -1 for All
-              sortBy: 'ida'
-            }
+          rowsPerPage: 15, // -1 for All
+          sortBy: 'ida'
+        },
+        excelFields: {
+          Ida: 'ida',
+          Vuelta: 'vuelta',
+          Terminal: 'terminal'
+        },
+        items: []
       }
     },
     mounted () {
@@ -252,7 +252,8 @@
       this.getBuses()
     },
     components: {
-      Horario
+      Horario,
+      Export
     },
     computed: {
       ...mapGetters({
@@ -279,6 +280,14 @@
             setTimeout(() => {
               this.trayectos = respuesta.data
               this.loading = false
+              this.items = this.trayectos.map(trayecto => {
+                const item = {...trayecto}
+                for (const prop in item) {
+                  if (item[prop] == null) item[prop] = ''
+                  if (Number.isInteger(item[prop])) item[prop] = item[prop].toString()
+                }
+                return item
+              })
             }, 500)
           }
         } catch (e) {

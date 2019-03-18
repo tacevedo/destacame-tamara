@@ -5,7 +5,7 @@
     lazy-validation
   >
       <v-layout wrap row align-center class="py-2">
-        <v-flex xs12 md3 class="pr-1">
+        <v-flex xs12 md3 class="pr-1 item-horario">
           <v-menu
             v-model="datepicker"
             :close-on-content-click="false"
@@ -34,7 +34,7 @@
                 @input="datepicker = false"></v-date-picker>
           </v-menu>
         </v-flex>
-        <v-flex xs12 md3 class="pr-1">
+        <v-flex xs12 md3 class="pr-1 item-horario">
           <v-menu
             ref="time1"
             :close-on-content-click="false"
@@ -66,7 +66,7 @@
             ></v-time-picker>
           </v-menu>
         </v-flex>
-        <v-flex xs12 md3 class="pr-1">
+        <v-flex xs12 md3 class="pr-1 item-horario">
           <v-autocomplete
             v-model="horario.id_bus"
             :items="buses"
@@ -275,5 +275,10 @@
   }
   .pickersHorario .v-input__slot {
     margin-bottom: 0;
+  }
+  @media (max-width: 960px){
+    .item-horario {
+      margin-bottom: 15px;
+    } 
   }
 </style>

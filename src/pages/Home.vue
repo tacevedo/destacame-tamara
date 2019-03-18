@@ -8,11 +8,11 @@
         <v-card class="mb-5 elevation-0">
             <v-autocomplete
               v-model="pasajeroSeleccionado"
-              :items="pasajeros"
+              :items="pasajerosFull"
               outline
               hide-details
               label="Pasajero"
-              item-text="nombre"
+              item-text="fullName"
               item-value="id"
               class="white--text autocomplete"
             >
@@ -49,6 +49,7 @@
               :items="horariosTrayecto"
               :pagination.sync="pagination"
               class="tabla-horarios"
+              rows-per-page-text="Filas por página"
               no-data-text="No hay buses registrados"
             >
             <template slot="items" slot-scope="props">
@@ -84,9 +85,11 @@
     data () {
       return {
         e6: 1,
-        pasajeros: [],
+        // pasajeros: [],
+        pasajerosFull: [],
         pasajeroSeleccionado: {},
-        trayectos: [],
+        // trayectos: [],
+        trayectosFull: [],
         trayectoSeleccionado: {},
         trayectosCompleto: [],
         headers: [
@@ -104,7 +107,9 @@
       }
     },
     mounted () {
-      this.getPasajeros()
+      this.$store.dispatch('General/get_pasajeros')
+      // this.$store.dispatch('General/get_trayectos')
+      // this.getPasajeros()
       this.getTrayectos()
     },
     computed: {
@@ -112,10 +117,19 @@
         pasajeroStore: ['AsignarPasajero/pasajeroId'],
         trayectoStore: ['AsignarPasajero/trayectoId'],
         horarioStore: ['AsignarPasajero/horarioId'],
+        pasajeros: ['General/pasajeros'],
+        // trayectos: ['General/trayectos'],
         horariosTrayecto: ['AsignarPasajero/horariosTrayecto']
       })
     },
     watch: {
+      pasajeros (val) {
+        this.pasajerosFull = val.map(pasajero => {
+          const item = {...pasajero}
+          item.fullName = `${item.nombre} ${item.apellido}`
+          return item
+        })
+      },
       pasajeroSeleccionado (val) {
         this.$store.dispatch('AsignarPasajero/set_pasajero_seleccionado', {pasajeroId: val})
         this.habilitarPasajero = val ? true : false
@@ -168,16 +182,20 @@
           console.log('catch err', e)
         }
       },
-      async getPasajeros () {
-        try {
-          let respuesta = await API.selectAll('pasajero')
-          if (respuesta.status >= 200 && respuesta.status < 300) {
-            this.pasajeros = respuesta.data
-          }
-        } catch (e) {
-          // console.log('catch err', e)
-        }
-      },
+      // async getPasajeros () {
+      //   try {
+      //     let respuesta = await API.selectAll('pasajero')
+      //     if (respuesta.status >= 200 && respuesta.status < 300) {
+      //       this.pasajeros = respuesta.data.map(bus => {
+      //           const item = {...bus}
+      //           item.fullName = `${item.nombre} ${item.apellido}`
+      //           return item
+      //         })
+      //     }
+      //   } catch (e) {
+      //     console.log('catch err', e)
+      //   }
+      // },
       async getTrayectos () {
         try {
           let respuesta = await API.selectAll('trayecto')
@@ -188,7 +206,7 @@
             })
           }
         } catch (e) {
-          // console.log('catch err', e)
+          console.log('catch err', e)
         }
       }
     }
@@ -205,6 +223,11 @@
   }
   .asigna-pasajero {
     min-width: 80%;
+  }
+  @media (max-width: 960px) {
+    .autocomplete.v-text-field.v-text-field--enclosed {
+      width: 80%;
+    }
   }
 </style>
 

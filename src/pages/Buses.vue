@@ -80,6 +80,7 @@
           :loading="loading"
           :pagination.sync="pagination"
           class="hidden-sm-and-down"
+          rows-per-page-text="Filas por página"
           no-data-text="No hay buses registrados"
         >
         <template slot="items" slot-scope="props">
@@ -149,6 +150,7 @@
 <script>
   import API from '../services/api/app.js'
   import Export from '../components/Exporta'
+  import {mapGetters} from 'vuex'
 
   export default {
     data () {
@@ -168,14 +170,14 @@
           {text: '', value: 'delete', sortable: false}
         ],
         buses: [],
-        choferes: [],
+        // choferes: [],
         valid: true,
         loading: true,
         rules: {
           required: v => !!v || 'Campo requerido'
         },
         asientos: [],
-        pasajeros: [],
+        // pasajeros: [],
         excelFields: {
           Patente: 'patente',
           Marca: 'marca',
@@ -190,16 +192,24 @@
     },
     mounted () {
       this.getbuses()
-      this.getChoferes()
-      this.getPasajeros()
+      // this.getChoferes()
+      // this.getPasajeros()
+      this.$store.dispatch('General/get_choferes')
+      this.$store.dispatch('General/get_pasajeros')
+    },
+    computed: {
+      ...mapGetters({
+        choferes: ['General/choferes'],
+        pasajeros: ['General/pasajeros']
+      })
     },
     components: {
       Export
     },
     methods: {
       findChoferName: function (idchofer) {
-        console.log(this.choferes, 'choferes')
-        const chofer = this.choferes.find(item => item.id == idchofer)
+        // console.log(this.choferes, 'choferes')
+        const chofer = this.choferes.find(item => item.id === idchofer)
         return chofer ? chofer.nombre : idchofer
       },
       async getbuses () {
@@ -210,7 +220,8 @@
             setTimeout(() => {
               this.buses = cars.data
               this.loading = false
-              this.items = this.buses.map(item => {
+              this.items = this.buses.map(bus => {
+                const item = {...bus}
                 for (const prop in item) {
                   if (prop === 'id_chofer'){
                     item.nombre_chofer = this.findChoferName(item[prop])
@@ -226,28 +237,28 @@
           console.log('catch err', e)
         }
       },
-      async getChoferes () {
-        try {
-          let drivers = await API.selectAll('chofer')
-          if (drivers.status >= 200 && drivers.status < 300) {
-            console.log('choferes en buses', drivers)
-            this.choferes = drivers.data
-          }
-        } catch (e) {
-          console.log('catch err', e)
-        }
-      },
-      async getPasajeros () {
-        try {
-          let response = await API.selectAll('pasajero')
-          if (response.status >= 200 && response.status < 300) {
-            console.log('choferes en buses', response)
-            this.pasajeros = response.data
-          }
-        } catch (e) {
-          console.log('catch err', e)
-        }
-      },
+      // async getChoferes () {
+      //   try {
+      //     let drivers = await API.selectAll('chofer')
+      //     if (drivers.status >= 200 && drivers.status < 300) {
+      //       console.log('choferes en buses', drivers)
+      //       this.choferes = drivers.data
+      //     }
+      //   } catch (e) {
+      //     console.log('catch err', e)
+      //   }
+      // },
+      // async getPasajeros () {
+      //   try {
+      //     let response = await API.selectAll('pasajero')
+      //     if (response.status >= 200 && response.status < 300) {
+      //       console.log('choferes en buses', response)
+      //       this.pasajeros = response.data
+      //     }
+      //   } catch (e) {
+      //     console.log('catch err', e)
+      //   }
+      // },
       async save (guardar) {
         console.log('a guardar', guardar)
         if (this.$refs.form.validate()) {
@@ -269,6 +280,7 @@
                   showCloseButton: false
                 })
                 this.editedItem = Object.assign({}, '')
+                this.crearAsientos()
               }
             } catch (e) {
               console.log('catch err', e)
