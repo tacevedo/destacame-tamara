@@ -1,5 +1,5 @@
 <template>
-  <v-toolbar color="primary" class="white--text">
+  <v-toolbar color="primary" class="white--text" dark>
     <v-toolbar-side-icon 
         @click="toggleDrawer"
       ></v-toolbar-side-icon>
