@@ -16,6 +16,7 @@ export default {
   },
   insert (urlModel, params) {
     const request = `${base}${urlModel}`
+    console.log('llega insert', request, {...params})
     return axios.post(request, {...auth, ...params})
   },
   update (urlModel, id, params) {
