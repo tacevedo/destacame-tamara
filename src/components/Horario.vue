@@ -25,6 +25,7 @@
                 outline
                 v-on="on"
                 class="pickersHorario"
+                :rules="[rules.required]" required
               ></v-text-field>
             </template>
             <v-date-picker 
@@ -54,6 +55,7 @@
               label="Hora"
               outline
               readonly
+              :rules="[rules.required]" required
             ></v-text-field>
             <v-time-picker
               v-if="timepicker"
@@ -74,6 +76,7 @@
             item-text="patente"
             item-value="id"
             class="white--text"
+            :rules="[rules.required]" required
           >
           </v-autocomplete>
         </v-flex>
@@ -103,6 +106,9 @@
         timepicker: false,
         buses: [],
         valid: true,
+        rules: {
+          required: v => !!v || 'Campo requerido'
+        },
         horario:{
           id_trayecto: '',
           id_bus: '',

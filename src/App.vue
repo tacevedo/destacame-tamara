@@ -30,4 +30,22 @@
   .contenido {
     margin-left: 260px;
   }
+  .title-modal{
+    text-align:center;
+    padding-bottom:5px;
+    width: 100%;
+    background:
+      linear-gradient(
+        to left, 
+        transparent 0%,
+        rgba(79,110,246,1) 47%,
+        transparent 100%
+      )
+      left 
+      bottom
+      transparent    
+      no-repeat; 
+    background-size:100% 2px ;
+  }
+  /* azuls 79,110,246, rosa (216,39,104 */
 </style>

@@ -5,7 +5,7 @@
     <v-dialog v-model="dialog" persistent max-width="90%" style="text-align: right">
       <v-card>
         <v-card-title primary-title class="secondary--text">
-            <h3 class="headline">Trayecto</h3>
+            <h3 class="headline title-modal">Trayecto</h3>
         </v-card-title>
         <v-card-text>
           <v-form
@@ -16,13 +16,13 @@
             <v-container fluid>
               <v-layout wrap>
                 <v-flex xs12 md6 lg4>
-                  <v-text-field label="Ida" outline v-model="editedItem.ida"></v-text-field>
+                  <v-text-field label="Ida" outline v-model="editedItem.ida" :rules="[rules.required]" required></v-text-field>
                 </v-flex>
                 <v-flex xs12 md6 lg4>
-                  <v-text-field label="Vuelta" outline v-model="editedItem.vuelta"></v-text-field>
+                  <v-text-field label="Vuelta" outline v-model="editedItem.vuelta" :rules="[rules.required]" required></v-text-field>
                 </v-flex>
                 <v-flex xs12 sm6 lg4>
-                  <v-text-field label="Terminal" outline v-model="editedItem.terminal"></v-text-field>
+                  <v-text-field label="Terminal" outline v-model="editedItem.terminal" :rules="[rules.required]" required></v-text-field>
                 </v-flex>
               </v-layout>
             </v-container>
@@ -197,6 +197,9 @@
         trayectos: [],
         inputs: [],
         valid: true,
+        rules: {
+          required: v => !!v || 'Campo requerido'
+        },
         elimina: '',
         horarioItem: {},
         dialogHorario: false,

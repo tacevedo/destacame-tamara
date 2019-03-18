@@ -5,7 +5,7 @@
     <v-dialog v-model="dialog" persistent max-width="900px" style="text-align: right">
       <v-card>
         <v-card-title primary-title class="secondary--text">
-            <h3 class="headline">Pasajero</h3>
+            <h3 class="headline title-modal title-modal">Pasajero</h3>
         </v-card-title>
         <v-card-text>
           <v-form
@@ -16,15 +16,13 @@
             <v-container grid-list-md>
               <v-layout wrap>
                 <v-flex xs12 md6>
-                  <v-text-field label="Nombre" outline v-model="editedItem.nombre"></v-text-field>
+                  <v-text-field label="Nombre" outline v-model="editedItem.nombre" :rules="[rules.required]" required></v-text-field>
                 </v-flex>
                 <v-flex xs12 md6>
-                  <v-text-field label="Apellido" outline v-model="editedItem.apellido"></v-text-field>
+                  <v-text-field label="Apellido" outline v-model="editedItem.apellido" :rules="[rules.required]" required></v-text-field>
                 </v-flex>
-              </v-layout>
-              <v-layout wrap>
                 <v-flex xs12 sm6>
-                  <v-text-field label="Rut" outline v-model="editedItem.rut"></v-text-field>
+                  <v-text-field label="Rut" outline v-model="editedItem.rut" :rules="[rules.required]" required></v-text-field>
                 </v-flex>
               </v-layout>
             </v-container>
@@ -145,6 +143,9 @@
         ],
         pasajeros: [],
         valid: true,
+        rules: {
+          required: v => !!v || 'Campo requerido'
+        },
         elimina: ''
       }
     },
@@ -290,5 +291,5 @@
 </script>
 
 <style>
-  
+
 </style>

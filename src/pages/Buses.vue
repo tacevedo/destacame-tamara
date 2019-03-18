@@ -4,7 +4,7 @@
     <v-dialog v-model="dialog" persistent max-width="900px">
       <v-card>
         <v-card-title primary-title>
-            <h3 class="headline secondary--text">Bus</h3>
+            <h3 class="headline secondary--text title-modal">Bus</h3>
         </v-card-title>
         <v-card-text>
           <v-form
@@ -15,10 +15,10 @@
             <v-container grid-list-md>
               <v-layout wrap>
                 <v-flex xs12 md6>
-                  <v-text-field label="Patente" outline v-model="editedItem.patente"></v-text-field>
+                  <v-text-field label="Patente" outline v-model="editedItem.patente" :rules="[rules.required]" required></v-text-field>
                 </v-flex>
                 <v-flex xs12 md6>
-                  <v-text-field label="Marca" outline v-model="editedItem.marca"></v-text-field>
+                  <v-text-field label="Marca" outline v-model="editedItem.marca" :rules="[rules.required]" required></v-text-field>
                 </v-flex>
               </v-layout>
               
@@ -34,6 +34,7 @@
                     item-text="nombre"
                     item-value="id"
                     class="white--text"
+                    :rules="[rules.required]" required
                   >
                   </v-autocomplete>
                 </v-flex>
@@ -143,7 +144,10 @@
         ],
         buses: [],
         choferes: [],
-        valid: true
+        valid: true,
+        rules: {
+          required: v => !!v || 'Campo requerido'
+        }
       }
     },
     mounted () {
