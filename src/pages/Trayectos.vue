@@ -115,7 +115,7 @@
           :headers="headers"
           :items="trayectos"
           :loading="loading"
-          hide-actions
+          :pagination.sync="pagination"
           no-data-text="No hay trayectos registrados"
         >
         <template slot="items" slot-scope="props">
@@ -240,7 +240,11 @@
         dialogHorario: false,
         horariosTrayecto: [],
         nuevohorario: {},
-        buses: []
+        buses: [],
+        pagination: {
+              rowsPerPage: 10, // -1 for All
+              sortBy: 'ida'
+            }
       }
     },
     mounted () {

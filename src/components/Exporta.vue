@@ -7,7 +7,7 @@
     </v-btn>
 
     <v-list>
-      <v-list-tile v-for="option in options" :key="option.name" @click="">
+      <v-list-tile v-for="option in options" :key="option.name">
         <v-list-tile-title>
           <download-excel :data="data" :fields="fields"
                           :name="name +' ('+ moment().format('LLLL') +')'+ option.extension"

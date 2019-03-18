@@ -65,7 +65,7 @@
           :headers="headers"
           :items="pasajeros"
           :loading="loading"
-          hide-actions
+          :pagination.sync="pagination"
           no-data-text="No hay pasajeros registrados"
         >
         <template slot="items" slot-scope="props">
@@ -148,7 +148,11 @@
           Nombre: 'nombre',
           Apellido: 'apellido',
           Rut: 'rut'
-        }
+        },
+        pagination: {
+                      rowsPerPage: 10, // -1 for All
+                      sortBy: 'nombre'
+                    }
       }
     },
    mounted () {

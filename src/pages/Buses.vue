@@ -78,7 +78,7 @@
           :headers="headers"
           :items="buses"
           :loading="loading"
-          hide-actions
+          :pagination.sync="pagination"
           no-data-text="No hay buses registrados"
         >
         <template slot="items" slot-scope="props">
@@ -152,7 +152,11 @@
           Marca: 'marca',
           Chofer: 'nombre_chofer'
         },
-        items: []
+        items: [],
+        pagination: {
+              rowsPerPage: 10, // -1 for All
+              sortBy: 'ida'
+            }
       }
     },
     mounted () {

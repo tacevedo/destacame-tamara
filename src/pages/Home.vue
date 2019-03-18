@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-3">
+  <div class="pa-3 contiene-asigna-pasajero">
     <h1 class="secondary--text"> Asignar asiento a un usuario </h1>
     <v-stepper v-model="e6" vertical>
 
@@ -47,7 +47,7 @@
           <v-data-table
               :headers="headers"
               :items="horariosTrayecto"
-              hide-actions
+              :pagination.sync="pagination"
               class="tabla-horarios"
               no-data-text="No hay buses registrados"
             >
@@ -96,7 +96,11 @@
         ],
         habilitarPasajero: false,
         habilitarTrayecto: false,
-        habilitarHorario: false
+        habilitarHorario: false,
+        pagination: {
+              rowsPerPage: 5, // -1 for All
+              sortBy: 'fecha'
+            }
       }
     },
     mounted () {
@@ -198,6 +202,9 @@
   }
   .tabla-horarios .v-datatable.v-table.theme--light{
     border: 1px solid #ccc;
+  }
+  .asigna-pasajero {
+    min-width: 80%;
   }
 </style>
 
