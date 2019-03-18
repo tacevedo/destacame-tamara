@@ -25,12 +25,10 @@ const actions = {
     commit('resetState')
   },
   set_show_sidebar ({commit}, payload) {
-    // console.log('store action')
     commit('SET_SHOW_SIDEBAR', {showsidebar: payload.showsidebar})
   },
   async get_pasajeros ({commit}, payload) {
     try {
-      console.log('llega a get horarios store')
       let respuesta = await API.selectAll('pasajero')
       if (respuesta.status >= 200 && respuesta.status < 300) {
         

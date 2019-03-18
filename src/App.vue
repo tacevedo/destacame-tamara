@@ -27,15 +27,18 @@
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css?family=Oxygen');
   #app {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    font-family: 'Oxygen', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
     width: 100%;
   }
-
+  html * {
+    font-size: 1.05em;
+  }
   .title-modal{
     text-align:center;
     padding-bottom:5px;
@@ -54,7 +57,7 @@
     background-size:100% 2px ;
   }
   .swal2-popup.modal-info {
-    font-family: Helvetica, sans-serif;
+    font-family: 'Oxygen', sans-serif;
   }
   .swal2-popup.swal2-modal.modal-info{
     border-radius: 0;

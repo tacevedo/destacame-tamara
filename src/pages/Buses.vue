@@ -216,7 +216,7 @@
         try {
           let cars = await API.selectAll('bus')
           if (cars.status >= 200 && cars.status < 300) {
-            console.log('buses', cars)
+            // console.log('buses', cars)
             setTimeout(() => {
               this.buses = cars.data
               this.loading = false
@@ -260,7 +260,7 @@
       //   }
       // },
       async save (guardar) {
-        console.log('a guardar', guardar)
+        // console.log('a guardar', guardar)
         if (this.$refs.form.validate()) {
           let id = guardar.id
           if (id) {
@@ -301,7 +301,7 @@
             try {
               let postbus = await API.insert('bus', guardar)
               if (postbus.status >= 200 && postbus.status < 300) {
-                console.log('result post bus', postbus)
+                // console.log('result post bus', postbus)
                 this.editedItem = Object.assign({}, '')
                 this.getbuses()
                 this.dialog = false
@@ -342,7 +342,7 @@
         try {
           let response = await API.selectAll('asiento')
           if (response.status >= 200 && response.status < 300) {
-            console.log('choferes en buses', response)
+            // console.log('choferes en buses', response)
             this.asientos = response.data.filter(item => item.id_bus === busid)
           }
         } catch (e) {
@@ -357,7 +357,7 @@
         try {
           let eliminando = await API.delete('bus', this.elimina)
           if (eliminando.status >= 200 && eliminando.status < 300) {
-            console.log('ya hizo DELETE car', eliminando)
+            // console.log('ya hizo DELETE car', eliminando)
             this.getbuses()
             this.confirmaAnular = false
             this.$swal({

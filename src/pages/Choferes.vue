@@ -205,7 +205,6 @@
       //   }
       // },
       async save (guardar) {
-        console.log('a guardar', guardar)
         if (this.$refs.form.validate()) {
           let id = guardar.id
           if (id) {
@@ -246,7 +245,6 @@
             try {
               let postChofer = await API.insert('chofer', guardar)
               if (postChofer.status >= 200 && postChofer.status < 300) {
-                console.log('result post bus', postChofer)
                 this.editedItem = Object.assign({}, '')
                 // this.getChoferes()
                 this.$store.dispatch('General/get_choferes')
@@ -291,7 +289,7 @@
         try {
           let eliminando = await API.delete('chofer', this.elimina)
           if (eliminando.status >= 200 && eliminando.status < 300) {
-            console.log('ya hizo DELETE chofer', eliminando)
+            // console.log('ya hizo DELETE chofer', eliminando)
             // this.getChoferes()
             this.$store.dispatch('General/get_choferes')
             this.confirmaAnular = false

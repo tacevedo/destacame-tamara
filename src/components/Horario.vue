@@ -85,9 +85,6 @@
             <v-icon>add</v-icon>
             Agregar
           </v-btn>
-          <!-- <v-btn flat small color="primary" @click="$emit('deleteHorario', horario)">
-            <span>Eliminar</span>
-          </v-btn> -->
         </v-flex>
       </v-layout>
   </v-form>
@@ -115,8 +112,7 @@
           hora: '',
           fecha: '',
           id: ''
-        },
-        elimina: ''
+        }
       }
     },
     mounted () {

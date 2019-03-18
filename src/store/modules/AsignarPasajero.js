@@ -25,7 +25,6 @@ const actions = {
     commit('resetState')
   },
   set_pasajero_seleccionado ({commit}, payload) {
-    console.log('store action')
     commit('SET_PASAJEROID', {pasajeroId: payload.pasajeroId})
   },
   set_trayecto_seleccionado ({commit}, payload) {
@@ -57,7 +56,6 @@ const mutations = {
     Object.assign(state, getDefaultState())
   },
   SET_HORARIOSTRAYECTO: (state, {horariosTrayecto}) => {
-    console.log('muta horariostrayecto', horariosTrayecto)
     state.horariosTrayecto = horariosTrayecto
   },
   SET_PASAJEROID: (state, {pasajeroId}) => {

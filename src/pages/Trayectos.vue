@@ -74,7 +74,6 @@
                           :fecha="nuevohorario.fecha"
                           :hora="nuevohorario.hora"
                           :horarioid="nuevohorario.id"
-                          @deleteHorario="deleteHorario"
                           />
               </v-flex>
               <v-flex xs12 v-for="(horario) in horariosTrayecto" v-bind:key="horario.id" class="text-xs-left">
@@ -263,7 +262,7 @@
     },
     watch: {
       horariosTrayectoStore (val) {
-        console.log('cambio', val)
+        // console.log('cambio', val)
         this.horariosTrayecto = val
       }
     },
@@ -328,7 +327,7 @@
                 this.editedItem = Object.assign({}, '')
               }
             } catch (e) {
-              // console.log('catch err', e.response)
+              console.log('catch err', e.response)
               this.editedItem = Object.assign({}, '')
               this.dialog = false
               this.$swal({
@@ -362,7 +361,7 @@
                 })
               }
             } catch (e) {
-              // console.log('catch err', e.response)
+              console.log('catch err', e.response)
               this.editedItem = Object.assign({}, '')
               this.dialog = false
               this.$swal({

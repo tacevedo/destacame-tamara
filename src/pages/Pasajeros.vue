@@ -204,7 +204,6 @@
       //   }
       // },
       async save (guardar) {
-        console.log('a guardar', guardar)
         if (this.$refs.form.validate()) {
           let id = guardar.id
           if (id) {
@@ -245,7 +244,6 @@
             try {
               let postPasajero = await API.insert('pasajero', guardar)
               if (postPasajero.status >= 200 && postPasajero.status < 300) {
-                console.log('result post pasajero', postPasajero)
                 this.editedItem = Object.assign({}, '')
                 // this.getPasajeros()
                 this.$store.dispatch('General/get_pasajeros')
@@ -290,7 +288,7 @@
         try {
           let eliminando = await API.delete('pasajero', this.elimina)
           if (eliminando.status >= 200 && eliminando.status < 300) {
-            console.log('ya hizo DELETE pasajero', eliminando)
+            // console.log('ya hizo DELETE pasajero', eliminando)
             // this.getPasajeros()
             this.$store.dispatch('General/get_pasajeros')
             this.confirmaAnular = false

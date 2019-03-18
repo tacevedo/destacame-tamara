@@ -1,6 +1,6 @@
 <template>
   <div class="pa-3 contiene-asigna-pasajero">
-    <h1 class="secondary--text"> Asignar asiento a un usuario </h1>
+    <h1 class="secondary--text mb-2"> Asignar asiento a un usuaro </h1>
     <v-stepper v-model="e6" vertical>
 
       <v-stepper-step :complete="e6 > 1" step="1">Seleccionar Usuario</v-stepper-step>
@@ -133,7 +133,6 @@
         })
       },
       pasajeroSeleccionado (val) {
-        console.log('pasajero sele', val)
         this.$store.dispatch('AsignarPasajero/set_pasajero_seleccionado', {pasajeroId: val})
         // this.$store.dispatch('AsignarPasajero/set_asignacion', {pasajero: val})
         this.habilitarPasajero = val ? true : false
@@ -151,10 +150,8 @@
     },
     methods: {
       selectHorario (horario) {
-        console.log('horario', horario)
         this.$store.dispatch('AsignarPasajero/set_horario_seleccionado', {horarioId: horario.id})
         let asientosBus = this.asientos.filter(item => item.id_bus === horario.id_bus)
-        console.log('asiento bus', asientosBus)
         let asientoslength = asientosBus.length
         if(asientoslength < 10) {
           this.agregarAsiento(horario.id_bus, asientosBus.length)
@@ -179,11 +176,11 @@
             id_bus: busid,
             id_pasajero: this.pasajeroStore
           }
-          console.log('guardar asiento', guardar)
+          // console.log('guardar asiento', guardar)
         try {
           let respuesta = await API.insert('asiento', guardar)
           if (respuesta.status >= 200 && respuesta.status < 300) {
-            console.log('respuesta agrear asento')
+            // console.log('respuesta agrear asento')
             
             const pasajero = this.pasajeros.find(item => item.id === this.pasajeroStore)
             const trayecto = this.trayectos.find(item => item.id === this.trayectoStore)
@@ -192,7 +189,6 @@
               customClass: 'modal-info',
               // timer: 2000,
               title: 'Asiento',
-              // text: 'Asiento asignado exitosamente!',
               html: `
                 <p>Asiento fue asignado exitosamente </p>
                 <p> Asiento: <strong>${asientosLen +1}</strong></p>
